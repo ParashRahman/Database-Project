@@ -4,6 +4,8 @@ import getpass
 
 
 #Initializes a cursor against a logged in user and then returns the cursor.
+#User enters username and password for a cursor
+
 def cursor_init(server="gwynne.cs.ualberta.ca",port="1521",SID="CRS"):
 
 	username = input("Enter your Oracle username: ");
