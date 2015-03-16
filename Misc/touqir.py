@@ -1,4 +1,4 @@
-import cx_Oracle
+# import cx_Oracle
 import getpass
 
 
@@ -70,7 +70,7 @@ def Auto_Transaction(global_cursor):
 	return global_cursor
 
 
-# Need to complete this function
+# Need to 11complete this function
 def insert_autosale(global_cursor):
 
 	autosale_row=input("Enter transaction_id, seller_id, buyer_id, vehicle_id, s_date, and price, separated by comma :")
@@ -87,13 +87,28 @@ def insert_autosale(global_cursor):
 	# 		error=True
 	# 		autosale_row[0]=input("Enter transaction_id in the integer format :")
 
-	statement='('+str(autosale_row[0])+','+"'"+str(autosale_row[1])+"'"+','+"'"+str(autosale_row[2])+"'"+','+"'"+str(autosale_row[3])+"'"+','+"TO_DATE('2003/05/03', 'yyyy/mm/dd')"+')'
+	try:
 
+		statement='('+str(autosale_row[0])+','+"'"+str(autosale_row[1])+"'"+','+"'"+str(autosale_row[2])+"'"+','+"'"+str(autosale_row[3])+"'"+','+"TO_DATE(" + autosale_row[4] + ", 'yyyy/mm/dd'),"+autosale_row[5]+')'
 
-	global_cursor.execute("SELECT * from TOFFEES")
+	except IndexError as e:
+
+		print('Please enter the data in the correct format')
+		global_cursor=insert_autosale(global_cursor)
+		return global_cursor
+
+	print(statement)
+
+	# global_cursor.execute("SELECT * from TOFFEES")
+
+	return global_cursor
+
+#function for adding record to the the violation record table
+def violation_record(global_cursor):
 
 	return global_cursor
 
 if __name__ == "__main__":
 
-	cursor_init()
+	# global_cursor=cursor_init()
+	insert_autosale('s')
