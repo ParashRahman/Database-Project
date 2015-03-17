@@ -1,3 +1,6 @@
+import cx_Oracle
+import getpass
+
 def main():
     print( "Choose one of the following actions: ")
     print( "[1] Register a new vehicle" )
@@ -19,6 +22,5 @@ def main():
             choice = int(input())
         except:
             choice = "Invalid"
-    
 
 main()
