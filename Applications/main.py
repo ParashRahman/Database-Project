@@ -31,7 +31,7 @@ class Main:
             # Call your function here
             # FORMAT:
             # obj = YOUR_APPLICATION_NAME()
-            # obj.list_options()
+            # obj.start_application()
             if ( choice == 1 ):
                 pass
             elif ( choice == 2 ):

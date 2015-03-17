@@ -6,13 +6,5 @@ class Application(object):
 
     # List the TUI of the application
     @abstractmethod
-    def list_options(self):
+    def start_application(self):
         pass
-
-    # Called within the list_options method 
-    # May end up repetitive amongst classes
-    # Must have error checking
-    @abstractmethod
-    def get_option(self):
-        pass
-        
