@@ -7,7 +7,45 @@ class Main:
     def main():
         Main.cursor_init()
 
-        NUM_CHOICES = 6
+        while ( True ):
+            NUM_CHOICES = 6
+
+            Main.print_options()
+            print( "Enter a number: " )
+        
+            try:
+                choice = int(input())
+            except:
+                choice = "Invalid"
+                
+            while ( type( choice ) is not int 
+                    or choice >= NUM_CHOICES + 1 
+                    or choice <= 0 ):
+                Main.print_options()
+                print( "Enter a valid integer choice: " )
+                try:
+                    choice = int(input())
+                except:
+                    choice = "Invalid"
+
+            # Call your function here
+            # FORMAT:
+            # obj = YOUR_APPLICATION_NAME()
+            # obj.list_options()
+            if ( choice == 1 ):
+                pass
+            elif ( choice == 2 ):
+                pass
+            elif ( choice == 3 ):
+                pass
+            elif ( choice == 4 ):
+                pass
+            elif ( choice == 5 ):
+                pass
+            elif ( choice == 6 ):
+                break
+    
+    def print_options():
         print( "Choose one of the following actions: ")
         print( "[1] Register a new vehicle" )
         print( "[2] Complete an auto transaction" )
@@ -15,35 +53,7 @@ class Main:
         print( "[4] Record a violation" )
         print( "[5] Search engine" )
         print( "[6] Exit" )
-        print( "Enter a number: " )
-        
-        try:
-            choice = int(input())
-        except:
-            choice = "Invalid"
-            
-        while ( type( choice ) is not int 
-                or choice >= NUM_CHOICES + 1 
-                or choice <= 0 ):
-            print( "Enter a valid integer choice: " )
-            try:
-                choice = int(input())
-            except:
-                choice = "Invalid"
 
-        if ( choice == 1 ):
-            pass
-        else if ( choice == 2 ):
-            pass
-        else if ( choice == 3 ):
-            pass
-        else if ( choice == 4 ):
-            pass
-        else if ( choice == 5 ):
-            pass
-        else if ( choice == 6 ):
-            pass
-    
     # initializes cursor
     def cursor_init(server="gwynne.cs.ualberta.ca",port="1521",SID="CRS"):
         username = input("Enter your Oracle username: ")
@@ -80,3 +90,6 @@ class Main:
     # use this function to get the cursor ( Main.get_cursor() )
     def get_cursor():
         return cursor
+
+if __name__ == '__main__':
+    Main.main()
