@@ -1,9 +1,10 @@
 import cx_Oracle
 import getpass
+import record_violation
 
 class Main:
     cursor = None
-
+    
     def main():
         Main.cursor_init()
 
@@ -31,7 +32,7 @@ class Main:
             # Call your function here
             # FORMAT:
             # obj = YOUR_APPLICATION_NAME()
-            # obj.start_application()
+            # obj.start_application(Main.cursor)
             if ( choice == 1 ):
                 pass
             elif ( choice == 2 ):
@@ -39,7 +40,8 @@ class Main:
             elif ( choice == 3 ):
                 pass
             elif ( choice == 4 ):
-                pass
+                v = record_violation.RecordViolation()
+                v.start_application(Main.cursor)
             elif ( choice == 5 ):
                 pass
             elif ( choice == 6 ):
@@ -69,7 +71,7 @@ class Main:
                 print("Please Enter correct username/password combination")
 
             if error.code==12541:
-                print("Wrong port/SID combination.Please Enter correct 'port/SID' combination below")
+                print("Wrong port/SID combination. Please Enter correct 'port/SID' combination below")
                 port = input("Enter correct port: ");
                 SID = input("Enter correct SID: ");
                     
@@ -85,11 +87,7 @@ class Main:
             return
 
         con.autocommit = 1
-        cursor = con.cursor()
-        
-    # use this function to get the cursor ( Main.get_cursor() )
-    def get_cursor():
-        return cursor
+        Main.cursor = con.cursor()
 
 if __name__ == '__main__':
     Main.main()
