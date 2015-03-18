@@ -6,8 +6,6 @@ import getpass
 #Initializes a cursor against a logged in user and then returns the cursor.
 #User enters username and password for a cursor
 
-
-
 def cursor_init(server="gwynne.cs.ualberta.ca",port="1521",SID="CRS"):
 
 	username = input("Enter your Oracle username: ");
@@ -73,24 +71,68 @@ def Auto_Transaction(global_cursor):
 
 
 def autosale_input():
+	
+	autosale_row=["None"]*6
+	fields=["transaction_id","seller_id","buyer_id","vehicle_id","s_date(yyyy/mm/dd)","price"]
+	while(1):
+		i=input("Type 1 for transaction_id, 2 for seller_id, 3 for buyer_id, 4 for vehicle_id, 5 for s_date(yyyy/mm/dd), 6 for price, 7 for checking what you have entered, 8 for finalizing : ")
+		i.strip()
+		try:
+			i=int(i)
+		except Exception as e:
+			continue
+		i=i-1
 
-	autosale_row=input("Enter transaction_id, seller_id, buyer_id, vehicle_id, s_date(yyyy/mm/dd), and price. Separate them by comma :")
-	autosale_row=autosale_row.split(',')
-	return autosale_row
+		#for finalizing
+		if i==(8-1):
+			break
+
+		#For displaying	
+		elif i==(7-1):
+			j=0
+			for value in fields:
+				print(value+" : "+str(autosale_row[j]))
+				j=j+1
+
+
+		#loading in input field values 
+		else:
+
+			try:
+				autosale_row[i]=input(fields[i]+" : ")
+
+			except Exception as e:
+				continue
+
+
+	value_statement='('+str(autosale_row[0])+','+"'"+str(autosale_row[1])+"'"+','+"'"+str(autosale_row[2])+"'"+','+"'"+str(autosale_row[3])+"'"+','+"TO_DATE('" + autosale_row[4] + "', 'yyyy/mm/dd'),"+autosale_row[5]+')'
+
+	return [autosale_row,value_statement]
+
+
 
 # Need to complete this function
 def insert_autosale(global_cursor):
 
 	success=1
-	autosale_row=autosale_input()
 
-	while(len(autosale_row!=6)):
-		print("please enter all of the 6 fields separated by comma")
-		autosale_row=autosale_input()
+	input_err=1
+	while(input_err):
+		
+		input_err=0
+		
+		try:
+
+			[autosale_row,value_statement]=autosale_input();
+
+		except Exception as e:
+		
+			input_err=1
+			print("input error! Make sure you enter all the field values correctly!")
 
 
 
-	if check_transaction_id(global_cursor,autosale_row[0]):
+	if check_transaction_id(global_cursor,autosale_row[0])==1:
 
 		print("This transaction Id is already present in the database. Make sure you enter a new transaction Id ")
 		success=0
@@ -115,18 +157,17 @@ def insert_autosale(global_cursor):
 		print("Sorry, your insert request is not successful")
 		return global_cursor
 
-	print(statement)
+	# print(statement)
 
+	statement="insert into auto_sale values"+value_statement
+	print(statement)
 
 	try:
 
-		value_statement='('+str(autosale_row[0])+','+"'"+str(autosale_row[1])+"'"+','+"'"+str(autosale_row[2])+"'"+','+"'"+str(autosale_row[3])+"'"+','+"TO_DATE(" + autosale_row[4] + ", 'yyyy/mm/dd'),"+autosale_row[5]+')'
-		statement="insert into auto_sale values"+value_statement
 		global_cursor.execute(statement)
 
-	except cx_Oracle.DatabaseError as e:
+	except Exception as e:
 
-		error, =e.args
 		print("Error while inserting record. Make sure you have corrected the format and data types")
 		insert_autosale(global_cursor)
 
@@ -185,10 +226,42 @@ def check_vehicle_type(global_cursor,vehicle_type_id):
 
 def vehicle_type_input():
 
-	vehicle_type_row=input("Enter type_id and type. Seperate them by comma: ")
-	vehicle_type_row=vehicle_type_row.split(',')
+	vehicle_type_row=[None]*2
+	fields=["type_id","type"]
+	while(1):
+		i=input("Press 1 for type_id, 2 for type, 3 for checking what you have entered, 4 for finalizing : ")
+		i.strip()
+		try:
+			i=int(i)
+		except Exception as e:
+			continue
+		i=i-1
+
+		#for finalizing
+		if i==(4-1):
+			break
+
+		#For displaying	
+		elif i==(3-1):
+			j=0
+			for value in fields:
+				print(value+" : "+str(vehicle_type_row[j]))
+				j=j+1
+
+
+		#loading in input field values 
+		else:
+
+			try:
+				vehicle_type_row[i]=input(fields[i]+" : ")
+
+			except Exception as e:
+				continue
+
+
 	value_statement='('+str(vehicle_type_row[0])+','+"'"+str(vehicle_type_row[1])+"'"+')'
 	return [vehicle_type_row,value_statement]	
+
 
 
 def insert_vehicle_type(global_cursor):
@@ -229,8 +302,42 @@ def insert_vehicle_type(global_cursor):
 
 def vehicle_input():
 
-	vehicle_row=input("Enter serial_no,maker,model,year,color and type_id. Seperate them by comma: ")
-	vehicle_row=vehicle_type_row.split(',')
+	# vehicle_row=input("Enter serial_no,maker,model,year,color and type_id. Seperate them by comma: ")
+	vehicle_row=[None]*6
+	fields=["serial_no","maker","model","year","colour","type_id"]
+	while(1):
+		i=input("Press 1 for serial_no, 2 for maker, 3 for model, 4 for year, 5 for color and 6 for type_id and 7 if you want to check what you entered: ")
+		i.strip()
+		try:
+			i=int(i)
+		except Exception as e:
+			continue
+
+		i=i-1
+
+		#For finalizing
+		if i==(8-1):
+			break
+
+		#For displaying	
+		elif i==(7-1):
+			j=0
+			for value in fields:
+				print(value+" : "+str(vehicle_row[j]))
+				j=j+1
+
+
+		else:
+			#loading in input field values 
+			try:
+				vehicle_row[i]=input(fields[i]+" : ")
+
+			except Exception as e:
+				continue
+
+		
+
+
 	value_statement="('"+str(vehicle_row[0])+"'"+','+"'"+str(vehicle_row[1])+"'"+ ',' + "'" + str(vehicle_row[2]) + "'" + ',' + str(vehicle_row[3]) + ',' + "'" + str(vehicle_row[4]) + "'" + ',' + str(vehicle_row[5]) + ')'
 	return [vehicle_row,value_statement]	
 
@@ -253,10 +360,17 @@ def insert_vehicle(global_cursor):
 			print("input error! Make sure you enter the 6 field values seperated by comma correctly!")
 
 
-	if check_vehicle_type(global_cursor,vehicle_row[0])==1:
+	if check_vehicle(global_cursor,vehicle_row[0])==1:
 
 		print("The record for this vehicle already exists. Please enter a new one next time")
 		return global_cursor
+
+
+	if check_vehicle_type(global_cursor,vehicle_row[5])==0:
+
+		print("The database doesnt have any record of the vehicle type ID you entered. Please enter a record for that vehicle type ID first ")
+		return global_cursor
+
 
 	statement="insert into vehicle values"+value_statement
 
@@ -275,8 +389,40 @@ def insert_vehicle(global_cursor):
 
 def people_input():
 
-	people_row=input("Enter sin,name,height,weight,eyecolour,haircolor,address,gender(m/f),birthday date(yyyy/mm/dd). Seperate them by comma: ")
-	people_row=people_row.split(',')
+	
+	people_row=["None"]*9
+	fields=["sin", "name", "height","weight","eyecolor", "haircolor","addr","gender","birthday"]
+	while(1):
+		i=input("Press 1 for sin, 2 for name, 3 for height, 4 for weight, 5 for eyecolor, 6 for haircolor, 7 for addr, 8 for gender, 9 for birthday, 10 for checking what you have entered, 11 for finalizing: ")
+		i.strip()
+		try:
+			i=int(i)
+		except Exception as e:
+			continue
+		i=i-1
+
+		#for finalizing
+		if i==(11-1):
+			break
+
+		#For displaying	
+		elif i==(10-1):
+			j=0
+			for value in fields:
+				print(value+" : "+str(people_row[j]))
+				j=j+1
+
+
+		else:
+			#loading in input field values 
+			try:
+				people_row[i]=input(fields[i]+" : ")
+
+			except Exception as e:
+				continue
+
+
+	print('got here')
 	value_statement='('+"'"+str(people_row[0])+"'"+','+"'"+str(people_row[1])+"'"+','+str(people_row[2])+','+str(people_row[3])+','+"'"+str(people_row[4])+"'"+','+"'"+str(people_row[5])+"'"+','+"'"+str(people_row[6])+"'"+','+"'"+str(people_row[7])+"'"+','+"TO_DATE('" + people_row[8] + "', 'yyyy/mm/dd')"+')'
 	return [people_row,value_statement]
 
@@ -295,6 +441,7 @@ def insert_people(global_cursor):
 	
 		except Exception as e:
 
+			print(e)
 			input_err=1
 			print("input error! Make sure you enter the 9 field values seperated by comma correctly!")
 
@@ -330,11 +477,14 @@ def violation_record(global_cursor):
 if __name__ == "__main__":
 
 	global_cursor=cursor_init2() # !!!!!!!!!!!!!!!!  this is my own cursor init function
-	if global_cursor==0:
-		return
+	# if global_cursor==0:
+	# 	return
 
 
 	# insert_autosale('s')
-	insert_people(global_cursor)
-
-	return
+	# insert_vehicle_type(global_cursor)
+	# insert_people(global_cursor)
+	# insert_vehicle(global_cursor)
+	insert_autosale(global_cursor)
+	# return
+	# print(check_people_sin(global_cursor,1))
