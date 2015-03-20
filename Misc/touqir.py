@@ -71,10 +71,10 @@ def Auto_Transaction(global_cursor):
 
 def autosale_input():
 	
-	autosale_row=["None"]*6
-	fields=["transaction_id","seller_id","buyer_id","vehicle_id","s_date(yyyy/mm/dd)","price"]
+	autosale_row=["None"]*7
+	fields=["transaction_id","seller_id","buyer_id","vehicle_id","s_date(yyyy/mm/dd)","price","is_primary_owner"]
 	while(1):
-		i=input("Type 1 for transaction_id, 2 for seller_id, 3 for buyer_id, 4 for vehicle_id, 5 for s_date(yyyy/mm/dd), 6 for price, 7 for checking what you have entered, 8 for finalizing : ")
+		i=input("Type 1 for transaction_id, 2 for seller_id, 3 for buyer_id, 4 for vehicle_id, 5 for s_date(yyyy/mm/dd), 6 for price, 7 for is_primary_owner,8 for checking what you have entered, 9 for finalizing : ")
 		i.strip()
 		try:
 			i=int(i)
@@ -83,11 +83,11 @@ def autosale_input():
 		i=i-1
 
 		#for finalizing
-		if i==(8-1):
+		if i==(9-1):
 			break
 
 		#For displaying	
-		elif i==(7-1):
+		elif i==(8-1):
 			j=0
 			for value in fields:
 				print(value+" : "+str(autosale_row[j]))
@@ -169,6 +169,8 @@ def insert_autosale(global_cursor):
 
 		print("Error while inserting record. Make sure you have corrected the format and data types")
 		insert_autosale(global_cursor)
+
+	change_owner(global_cursor,autosale_row[2],autosale_row[3],autosale_row[6])
 
 	return global_cursor
 
@@ -467,9 +469,47 @@ def insert_people(global_cursor):
 
 
 
-#function for adding record to the the violation record table
+#Returns metadata incase the insert statement doesnt work
+def change_owner(global_cursor,owner_sin,vehicle_id,is_primary_owner):
 
-def violation_record(global_cursor):
+	statement="delete from owner where vehicle_id="+str(vehicle_id)
+	global_cursor.execute(statement)
+	value_statement='('+"'"+str(owner_sin)+"'"+','+"'"+str(vehicle_id)+"'"+','+"'"+str(is_primary_owner)+"'"+')'
+	statement2="insert into owner values"+value_statement
+	try:
+		global_cursor.execute(statement2)
+	except Exception as e:
+		#Implement the metadata handling part and return the metadata in case some error occurs while inserting
+		return 
+	return 0
+
+
+
+def new_vehicle_registration_input():
+
+	print("Will check whether vehicle id and owner's sin is in the database.")
+	vehicle_id=input("enter the vehicle_id: ")
+	owner_sin=input("enter owner's sin: ")
+	is_primary_owner=input("enter whether the owner is a primary owner: ")
+	return [vehicle_id,owner_sin,is_primary_owner]
+
+
+def new_vehicle_registration(global_cursor):
+
+	[vehicle_id,owner_sin,is_primary_owner]=new_vehicle_registration_input()
+
+	if check_people_sin(global_cursor,owner_sin)==0:
+
+		print("There is no record of the owner and you need to fill up the 'person' table")
+		insert_people(global_cursor)
+
+	if check_vehicle_id(global_cursor,vehicle_id)==0:
+
+		print("The vehicle is not registered. You will be taken to the vehicle registration page")
+		insert_vehicle(global_cursor)
+
+	metadata=change_owner(global_cursor,owner_sin,vehicle_id,is_primary_owner)
+	#Use the metadata to find out the error and use a loop
 
 	return global_cursor
 
