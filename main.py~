@@ -1,9 +1,0 @@
-def main():
-    print( "Choose one of the following actions: ")
-    print( "[1] Register a new vehicle" )
-    print( "[2] Complete an auto transaction" )
-    print( "[3] Register a driver's licence" )
-    print( "[4] Record a violation" )
-    print( "Enter a number: " )
-    
-    choice = int(input())
