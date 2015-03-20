@@ -7,7 +7,6 @@ import getpass
 #User enters username and password for a cursor
 
 def cursor_init(server="gwynne.cs.ualberta.ca",port="1521",SID="CRS"):
-
 	username = input("Enter your Oracle username: ");
 	password = getpass.getpass("Enter password: ")
 	try:
@@ -476,7 +475,7 @@ def violation_record(global_cursor):
 
 if __name__ == "__main__":
 
-	global_cursor=cursor_init2() # !!!!!!!!!!!!!!!!  this is my own cursor init function
+	global_cursor=cursor_init() # !!!!!!!!!!!!!!!!  this is my own cursor init function
 	# if global_cursor==0:
 	# 	return
 
