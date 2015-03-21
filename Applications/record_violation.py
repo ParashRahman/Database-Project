@@ -1,18 +1,23 @@
 from application import Application
 
 class RecordViolation(Application):
+    current_number = 0
+    
     def start_application(self, c):
         self.cursor = c
         
-        self.fields = [ "Ticket no.",
-                        "Violator no.",
-                        "Vehicle id",
-                        "Office no.",
-                        "Violation type",
-                        "Violation date",
-                        "Place",
-                        "Descriptions",
-                        "Exit: Cancel entering violation" ]
+        self.my_number = RecordViolation.current_number
+        RecordViolation.current_number += 1
+
+        self.fields = [ "Violator no.", # 1 
+                        "Vehicle id",   # 2
+                        "Office no.",   # 3
+                        "Violation type", # 4
+                        "Violation date", # 5
+                        "Place",        # 6
+                        "Descriptions", # 7
+                        "Insert into database", # 8
+                        "Exit: Cancel entering violation" ] # 9
         
         self.list_of_inputs = [ None for i in range(len(self.fields)) ]
 
@@ -49,15 +54,11 @@ class RecordViolation(Application):
                     self.fields[i] + 
                     ("" if self.list_of_inputs[i] else " EMPTY" ) )
 
-    # returns False if nothing is entered (user cancels)
     # else returns the integer input choice
     def get_input( self, num_choices ):
-        print( "Enter a number (Enter nothing to cancel): " )
-
+        print( "Choose a field to edit or an option: " )
         try:
             string_input = input()
-            if ( len( string_input ) == 0 ):
-                return False
             choice = int(string_input)
         except:
             choice = "Invalid"
@@ -69,8 +70,6 @@ class RecordViolation(Application):
             print( "Enter a valid integer choice: " )
             try:
                 string_input = input()
-                if ( string_input == 0 ):
-                    return False
                 choice = int(string_input)
             except:
                 choice = "Invalid"
