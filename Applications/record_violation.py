@@ -1,11 +1,12 @@
 from application import Application
+from error_checker import ErrorChecker
 
 class RecordViolation(Application):
     current_number = 0
     
     def start_application(self, c):
         self.cursor = c
-        
+
         self.my_number = RecordViolation.current_number
         RecordViolation.current_number += 1
 
@@ -21,26 +22,29 @@ class RecordViolation(Application):
         
         self.list_of_inputs = [ None for i in range(len(self.fields)) ]
 
-        metadata = True
+        self.cursor.execute("SELECT * FROM ticket" )
+        self.metadata = self.cursor.description
 
         while ( True ):
             self.print_field_options( )
             choice = self.get_input( len(self.fields) )
-  
+            index = choice - 1
+
             if ( choice == 1 ):
-                pass 
+                self.get_violator_no(index)
             elif ( choice == 2 ):
-                pass
+                self.get_vehicle_id(index)
             elif ( choice == 3 ):
-                pass
+                self.get_office_no(index)
             elif ( choice == 4 ):
-                pass
+                self.get_violation_type(index)
             elif ( choice == 5 ):
-                pass
+                self.get_violation_date(index)
             elif ( choice == 6 ):
-                pass
+                self.get_violation_place(index)
             elif ( choice == 7 ):
-                pass
+                self.get_violation_description(index)
+            # Enter data into db
             elif ( choice == 8 ):
                 pass
             # Exit option
@@ -75,3 +79,26 @@ class RecordViolation(Application):
                 choice = "Invalid"
 
         return choice
+
+    def get_violator_no(self, index):
+        pass
+    
+    def get_vehicle_id(self, index):
+        pass
+    
+    def get_office_no(self, index):
+        pass
+
+    def get_violation_type(self, index):
+        pass
+
+    def get_violation_date(self, index):
+        pass
+
+    def get_violation_place(self, index):
+        pass
+    
+    def get_violation_description(self, index):
+        pass
+
+    
