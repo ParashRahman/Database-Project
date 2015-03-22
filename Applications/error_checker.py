@@ -73,7 +73,7 @@ class ErrorChecker:
         return True
 
 
-    def check_if_string_is_integer( string ):
+    def check_str_int( string ):
         try:
             int( string )
         except( ValueError ): 
