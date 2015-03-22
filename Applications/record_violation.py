@@ -7,7 +7,9 @@ class RecordViolation(Application):
     def start_application(self, c):
         self.cursor = c
 
-        self.my_number = RecordViolation.current_number
+        self.list_of_inputs = [ None for i in range(8) ]
+
+        self.list_of_inputs[0] = RecordViolation.current_number
         RecordViolation.current_number += 1
 
         self.fields = [ "Violator no.", # 1 
@@ -19,8 +21,6 @@ class RecordViolation(Application):
                         "Descriptions", # 7
                         "Insert into database", # 8
                         "Exit: Cancel entering violation" ] # 9
-        
-        self.list_of_inputs = [ None for i in range(len(self.fields)) ]
 
         self.cursor.execute("SELECT * FROM ticket" )
         self.metadata = self.cursor.description
@@ -28,22 +28,21 @@ class RecordViolation(Application):
         while ( True ):
             self.print_field_options( )
             choice = self.get_input( len(self.fields) )
-            index = choice - 1
 
             if ( choice == 1 ):
-                self.get_violator_no(index)
+                self.get_violator_no(choice)
             elif ( choice == 2 ):
-                self.get_vehicle_id(index)
+                self.get_vehicle_id(choice)
             elif ( choice == 3 ):
-                self.get_office_no(index)
+                self.get_office_no(choice)
             elif ( choice == 4 ):
-                self.get_violation_type(index)
+                self.get_violation_type(choice)
             elif ( choice == 5 ):
-                self.get_violation_date(index)
+                self.get_violation_date(choice)
             elif ( choice == 6 ):
-                self.get_violation_place(index)
+                self.get_violation_place(choice)
             elif ( choice == 7 ):
-                self.get_violation_description(index)
+                self.get_violation_description(choice)
             # Enter data into db
             elif ( choice == 8 ):
                 pass
@@ -56,7 +55,7 @@ class RecordViolation(Application):
         for i in range( len( self.fields ) ):
             print ( "[{:}] ".format( i+1 ) + 
                     self.fields[i] + 
-                    ("" if self.list_of_inputs[i] else " EMPTY" ) )
+                    (" EMPTY" if i < 7 and not self.list_of_inputs[i+1]  else "") )
 
     # else returns the integer input choice
     def get_input( self, num_choices ):
@@ -80,24 +79,168 @@ class RecordViolation(Application):
 
         return choice
 
+    ###################################
+    # GET VIOLATOR NO.
+    ###################################
     def get_violator_no(self, index):
-        pass
-    
-    def get_vehicle_id(self, index):
-        pass
-    
-    def get_office_no(self, index):
-        pass
+        # initial get and check
+        user_input = input("Enter the violator's SIN "
+                           "(Enter nothing to cancel): ")
 
+        # initial check if user wants to cancel
+        if ( len( user_input ) == 0 ):
+            return
+
+        # initial check for if violator exists
+        exists = False
+        self.cursor.execute("SELECT SIN FROM people")
+        rows = self.cursor.fetchall()
+        rows = [ row[0].strip().lower() for row in rows ]
+        if ( user_input.strip().lower() in rows ):
+            exists = True
+
+        # While the input string is too long or the violator does not exist
+        short_enough = ErrorChecker.check_error(self.metadata[index], user_input)
+        while ( not short_enough or not exists):
+            if ( not short_enough ):
+                user_input = input("Your input was too long. "
+                                   "Enter the violator's SIN " 
+                                   "(Enter nothing to cancel): ")
+            elif ( not exists ):
+                char_answer = ""
+                while ( char_answer.strip().lower() not in [ 'y', 'n' ] ):
+                    char_answer = input( "The violator is not in the database. "
+                                         "Would you like to add the person? (y/n): " )
+                
+                if ( char_answer == 'y' ):
+                    # TODO: Call add person
+                    pass
+
+                user_input = input("Enter the violator's SIN (Enter "
+                                   "nothing to cancel): ")
+
+            if ( len( user_input ) == 0 ):
+                return
+
+            if ( user_input.strip().lower() in rows ):
+                exists = True
+            else:
+                exists = False
+                
+            short_enough = ErrorChecker.check_error(self.metadata[index], user_input)
+        
+        self.list_of_inputs[index] = user_input.strip().lower()
+    
+    ###################################
+    # GET VEHICLE ID
+    ###################################
+    def get_vehicle_id(self, index):
+        # initial get and check
+        user_input = input("Enter the vehicle serial number "
+                           "(Enter nothing to cancel): ")
+
+        # initial check if user wants to cancel
+        if ( len( user_input ) == 0 ):
+            return
+
+        # initial check for if violator exists
+        exists = False
+        self.cursor.execute("SELECT serial_no FROM vehicle")
+        rows = self.cursor.fetchall()
+        rows = [ row[0].strip().lower() for row in rows ]
+        if ( user_input.strip().lower() in rows ):
+            exists = True
+
+        # While the input string is too long or the violator does not exist
+        short_enough = ErrorChecker.check_error(self.metadata[index], user_input)
+        while ( not short_enough or not exists):
+            if ( not short_enough ):
+                user_input = input("Your input was too long. "
+                                   "Enter the vehicle serial number " 
+                                   "(Enter nothing to cancel): ")
+            elif ( not exists ):
+                user_input = input("The vehicle is not in the database. "
+                                   "Enter the violator's SIN (Enter "
+                                   "nothing to cancel): ")
+
+            if ( len( user_input ) == 0 ):
+                return
+
+            if ( user_input.strip().lower() in rows ):
+                exists = True
+            else:
+                exists = False
+                
+            short_enough = ErrorChecker.check_error(self.metadata[index], user_input)
+        
+        self.list_of_inputs[index] = user_input.strip().lower()
+
+    
+    ###################################
+    # GET OFFICE NO.
+    ###################################
+    def get_office_no(self, index):
+        # initial get and check
+        user_input = input("Enter the office number "
+                           "(Enter nothing to cancel): ")
+
+        # initial check if user wants to cancel
+        if ( len( user_input ) == 0 ):
+            return
+
+        # initial check for if violator exists
+        exists = False
+        self.cursor.execute("SELECT SIN FROM people")
+        rows = self.cursor.fetchall()
+        rows = [ row[0].strip().lower() for row in rows ]
+        if ( user_input.strip().lower() in rows ):
+            exists = True
+
+        # While the input string is too long or the violator does not exist
+        short_enough = ErrorChecker.check_error(self.metadata[index], user_input)
+        while ( not short_enough or not exists):
+            if ( not short_enough ):
+                user_input = input("Your input was too long. "
+                                   "Enter the office number " 
+                                   "(Enter nothing to cancel): ")
+            elif ( not exists ):
+                user_input = input("The office is not in the database. "
+                                   "Enter the office number (Enter "
+                                   "nothing to cancel): ")
+
+            if ( len( user_input ) == 0 ):
+                return
+
+            if ( user_input.strip().lower() in rows ):
+                exists = True
+            else:
+                exists = False
+                
+            short_enough = ErrorChecker.check_error(self.metadata[index], user_input)
+        
+        self.list_of_inputs[index] = user_input.strip().lower()
+
+    ###################################
+    # GET VIOLATION TYPE
+    ###################################
     def get_violation_type(self, index):
         pass
 
+    ###################################
+    # GET VIOLATION DATE
+    ###################################
     def get_violation_date(self, index):
         pass
 
+    ###################################
+    # GET VIOLATOR PLACE
+    ###################################
     def get_violation_place(self, index):
         pass
-    
+
+    ###################################
+    # GET VIOLATOR DESCRIPTION
+    ###################################
     def get_violation_description(self, index):
         pass
 
