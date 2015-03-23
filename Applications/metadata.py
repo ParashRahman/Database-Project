@@ -1,3 +1,19 @@
+
+"""
+Initialize a Metadata object once and access the respective metadata as public variables. Following are the variable names:
+
+owner table				= owner_metadata
+auto_sale table 		= auto_sale_metadata
+restriction table		= restriction_metadata
+driving_condition table	= driving_condition_metadata
+ticket table			= ticket_metadata
+ticket_type table 		= ticket_type_metadata
+vehicle table			= vehicle_metadata
+vehicle_type table 		= vehicle_type_metadata
+drive_licence table 	= drive_licence_metadata
+people table 			= people_metadata
+
+"""
 class Metadata:
 
 	def __init__(self,cursor):
