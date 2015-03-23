@@ -1,5 +1,6 @@
 from application import Application
 from error_checker import ErrorChecker
+from metadata import Metadata
 
 class RecordViolation(Application):
     current_number = 0
@@ -22,8 +23,8 @@ class RecordViolation(Application):
                         "Insert into database", # 8
                         "Exit: Cancel entering violation" ] # 9
 
-        self.cursor.execute("SELECT * FROM ticket" )
-        self.metadata = self.cursor.description
+        m = Metadata(self.cursor)
+        self.metadata = m.meta_ticket()
 
         while ( True ):
             self.print_field_options( )
@@ -45,21 +46,32 @@ class RecordViolation(Application):
                 self.get_violation_description(choice)
             # Enter data into db
             elif ( choice == 8 ):
-                pass
+                
+                
+                return
             # Exit option
             elif ( choice == 9 ):
                 return
 
-    def print_field_options( self ):
+    def print_field_options( self, fields = None, showEmpty = True ):
+        if ( fields == None ):
+            fields = self.fields
         print( "Enter a field option to edit: " )
-        for i in range( len( self.fields ) ):
+        for i in range( len( fields ) ):
             print ( "[{:}] ".format( i+1 ) + 
-                    self.fields[i] + 
-                    (" EMPTY" if i < 7 and not self.list_of_inputs[i+1]  else "") )
+                    fields[i] + 
+                    (" EMPTY" if showEmpty 
+                     and i < 7 and not self.list_of_inputs[i+1]  
+                     else "") )
 
     # else returns the integer input choice
-    def get_input( self, num_choices ):
-        print( "Choose a field to edit or an option: " )
+    def get_input( self, num_choices, 
+                   prompt = "Choose a field to edit or an option: ",
+                   fields = None, showEmpty = True ):
+        if ( fields == None ):
+            fields = self.fields
+
+        print( prompt )
         try:
             string_input = input()
             choice = int(string_input)
@@ -69,7 +81,7 @@ class RecordViolation(Application):
         while ( type( choice ) is not int 
                 or choice >= num_choices + 1 
                 or choice <= 0 ):
-            self.print_field_options()
+            self.print_field_options(fields, showEmpty)
             print( "Enter a valid integer choice: " )
             try:
                 string_input = input()
@@ -224,24 +236,89 @@ class RecordViolation(Application):
     # GET VIOLATION TYPE
     ###################################
     def get_violation_type(self, index):
-        pass
+        self.cursor.execute( "SELECT * FROM ticket_type" )
+        list_of_types = self.cursor.fetchall()
+        prompt_types = [ row[0] + " $" + str(row[1])
+                          for row in list_of_types ] 
+
+        self.print_field_options( prompt_types, False )
+
+        user_input = self.get_input(len( prompt_types ), 
+                                    "Pick a violation type", 
+                                    prompt_types, False )
+
+        self.list_of_inputs[index] = list_of_types[user_input-1][0]
 
     ###################################
     # GET VIOLATION DATE
     ###################################
     def get_violation_date(self, index):
-        pass
+        while ( True ):
+            date_input = input ( "Enter the date ( DD/MM/YYYY ) "
+                                 "(Enter nothing to cancel) :")
+            if ( len( date_input ) == 0 ):
+                return
 
+            date_input = date_input.split('/')
+            try:
+                if len(date_input) != 3:
+                    raise InvalidDateException()
+                for component in date_input:
+                    if ( not ErrorChecker.check_str_int(component) ):
+                        raise InvalidDateException()
+                
+                date_input = [ int(comp) for comp in date_input ]
+                
+                if (not ErrorChecker.check_error(self.metadata[index], date_input)):
+                    raise InvalidDateException()
+                
+                break
+
+            except ( InvalidDateException ):
+                print( "Your date was invalid" )
+            
+        if ( date_input != None ):
+            d = date_input[0]
+            m = date_input[1]
+            y = date_input[2]
+            self.list_of_inputs[index] = [ "{:}/{:}/{:}".format(d,m,y), "DD/MM/YYYY" ] 
+
+                    
     ###################################
     # GET VIOLATOR PLACE
     ###################################
     def get_violation_place(self, index):
-        pass
+
+        while ( True ):
+            user_input = input("Enter the place of the violation "
+                               "(Enter nothing to cancel): ")
+            if ( len( user_input ) == 0 ):
+                return
+
+            if ( ErrorChecker.check_error( self.metadata[index], user_input ) ):
+                break
+            else:
+                print( "Your input was too long" )
+
+        self.list_of_inputs[index] = user_input
 
     ###################################
     # GET VIOLATOR DESCRIPTION
     ###################################
     def get_violation_description(self, index):
-        pass
+        while ( True ):
+            user_input = input("Enter the description of the violation "
+                               "(Enter nothing to cancel): ")
+            if ( len( user_input ) == 0 ):
+                return
+
+            if ( ErrorChecker.check_error( self.metadata[index], user_input ) ):
+                break
+            else:
+                print( "Your input was too long" )
+
+        self.list_of_inputs[index] = user_input
 
     
+class InvalidDateException(Exception):
+    pass
