@@ -1,6 +1,8 @@
 import cx_Oracle
 import getpass
 from metadata import Metadata
+from data_format import data_formats_info
+from error_checker import ErrorChecker
 
 
 
@@ -128,7 +130,8 @@ class DB:
 		success=1
 
 		input_err=1
-		while(input_err):
+
+		while(input_err or correct!=True):
 
 			input_err=0
 
@@ -136,10 +139,30 @@ class DB:
 
 				[autosale_row,value_statement]=self.autosale_input();
 
+				if (ErrorChecker.check_error(self.metadata.auto_sale_metadata,autosale_row[0:4]+autosale_row[5]) and date_parse_error(self.metadata.auto_sale_metadata,autosale_row[4])):
+					
+					correct=True
+			
+				else:
+			
+					correct=False
+		
+				if (correct!=True):
+		
+					print("Please enter the data in the correct format")
+					data_formats_info.auto_sale()
+
 			except Exception as e:
 
 				input_err=1
 				print("input error! Make sure you enter all the field values correctly!")
+
+			carry_on=input("type 'y' if you want to continue or 'n' if you want to stop adding a record (y/n): ")
+
+			if carry_on=='n':
+				
+				return
+
 
 
 
@@ -280,18 +303,32 @@ class DB:
 	def insert_vehicle_type(self):
 
 		input_err=1
-		while(input_err):
+
+		while(input_err or correct!=True):
 
 			input_err=0
 
 			try:
 
 				[vehicle_type_row,value_statement]=self.vehicle_type_input();
+				correct=ErrorChecker.check_error(self.metadata.vehicle_type_metadata,vehicle_type_row)
+				
+				if (correct!=True):
+
+					print("Please enter the data in the correct format")
+					data_formats_info.vehicle_type()
 
 			except Exception as e:
 
 				input_err=1
 				print("input error! Make sure you enter the 2 field values seperated by comma correctly!")
+
+			carry_on=input("type 'y' if you want to continue or 'n' if you want to stop adding a record (y/n): ")
+
+			if carry_on=='n':
+				
+				return
+
 
 		if self.check_vehicle_type(vehicle_type_row[0])==1:
 
@@ -308,7 +345,7 @@ class DB:
 		except Exception as e:
 
 			print("Database insert error! Make sure you enter the field values with the correct data type")
-			self.cursor=self.insert_vehicle_type()
+			self.insert_vehicle_type()
 
 		return
 
@@ -359,18 +396,32 @@ class DB:
 	def insert_vehicle(self):
 
 		input_err=1
-		while(input_err):
+		while(input_err or correct!=True):
 
 			input_err=0
 
 			try:
 
-				[vehicle_row,value_statement]=vehicle_input();
+				[vehicle_row,value_statement]=self.vehicle_input();
+				correct=ErrorChecker.check_error(self.metadata.vehicle_metadata,vehicle_row)
+				
+				if (correct!=True):
+
+					print("Please enter the data in the correct format")
+					data_formats_info.vehicle()
+
 
 			except Exception as e:
 
 				input_err=1
 				print("input error! Make sure you enter the 6 field values seperated by comma correctly!")
+
+			carry_on=input("type 'y' if you want to continue or 'n' if you want to stop adding a record (y/n): ")
+
+			if carry_on=='n':
+				
+				return
+
 
 
 		if self.check_vehicle(vehicle_row[0])==1:
@@ -394,7 +445,7 @@ class DB:
 		except Exception as e:
 
 			print("Database insert error! Make sure you enter the field values with the correct data type")
-			self.cursor=self.insert_vehicle()
+			self.insert_vehicle()
 
 		return
 
@@ -444,7 +495,7 @@ class DB:
 	def insert_people(self):
 
 		input_err=1
-		while(input_err):
+		while(input_err or correct!=True):
 
 			input_err=0
 
@@ -452,11 +503,31 @@ class DB:
 
 				[people_row,value_statement]=self.people_input()
 
+				if (ErrorChecker.check_error(self.metadata.people_metadata,people_row[0:8]) and date_parse_error(self.metadata.people_metadata,people_row[8])):
+					
+					correct=True
+			
+				else:
+			
+					correct=False
+		
+				if (correct!=True):
+		
+					print("Please enter the data in the correct format")
+					data_formats_info.people()
+
+
 			except Exception as e:
 
 				print(e)
 				input_err=1
 				print("input error! Make sure you enter the 9 field values seperated by comma correctly!")
+
+			carry_on=input("type 'y' if you want to continue or 'n' if you want to stop adding a record (y/n): ")
+
+			if carry_on=='n':
+				
+				return
 
 
 
@@ -475,7 +546,7 @@ class DB:
 		except Exception as e:
 
 			print('Insert Error!Please enter the data in the correct format and type')
-			self.cursor=self.insert_people()
+			self.insert_people()
 
 		return
 
@@ -488,14 +559,16 @@ class DB:
 		self.cursor.execute(statement)
 		value_statement='('+"'"+str(owner_sin)+"'"+','+"'"+str(vehicle_id)+"'"+','+"'"+str(is_primary_owner)+"'"+')'
 		statement2="insert into owner values"+value_statement
+		
 		try:
 
 			self.cursor.execute(statement2)
 
 		except Exception as e:
-			#Implement the metadata handling part and return the metadata in case some error occurs while inserting
-			return
-		return 0
+
+			print("Error! cannot add an owner record")
+
+		return 
 
 
 
@@ -504,7 +577,7 @@ class DB:
 		print("Will check whether vehicle id and owner's sin is in the database.")
 		vehicle_id=input("enter the vehicle_id: ")
 		owner_sin=input("enter owner's sin: ")
-		is_primary_owner=input("enter whether the owner is a primary owner: ")
+		is_primary_owner=input("enter whether the owner is a primary owner (y/n): ")
 		return [vehicle_id,owner_sin,is_primary_owner]
 
 
@@ -513,35 +586,69 @@ class DB:
 		while(correct!=True):
 
 			[vehicle_id,owner_sin,is_primary_owner]=self.new_vehicle_registration_input()
-			correct=check_error(metadata,[vehicle_id,owner_sin,is_primary_owner])
+			correct=ErrorChecker.check_error(self.metadata,[vehicle_id,owner_sin,is_primary_owner])
+			
 			if (correct!=True):
+
 				print("Please enter the data in the correct format")
+				data_formats_info.owner()
 
 
 		p_sin=True
 		v_id=True
-		while():
+		while(p_sin and v_id):
+
+			carry_on=input("type 'y' if you want to continue or 'n' if you want to stop new_vehicle_registration here (y/n): ")
+
+			if carry_on=='n':
+				
+				break
+
 
 			if self.check_people_sin(owner_sin)==0:
 
 				p_sin=False
-				print("There is no record of the owner and you need to fill up the 'person' table")
-				self.insert_people()
+				
+				fill_people=input("There is no record of the owner and you need to fill up the 'person' table. Do you want to fill in now? (y/n): ")
+				
+				if fill_people=='y':
+					
+					self.insert_people()
 
 			if self.check_vehicle_id(vehicle_id)==0:
 
 				v_id=False
-				print("The vehicle is not registered. You will be taken to the vehicle registration page")
-				self.insert_vehicle()
+				print("The vehicle is not registered. Do you want to register vehicle now? (y/n): ")
+				
+				if fill_vehicle=='y':
+					
+					self.insert_vehicle()
 
-			if p_sin and v_id:
 
-				break
 
-		metadata=self.change_owner(owner_sin,vehicle_id,is_primary_owner)
-		#Use the metadata to find out the error and use a loop
+		self.change_owner(owner_sin,vehicle_id,is_primary_owner)
 
 		return
+
+
+	#takes in date string of format yyyy/mm/dd and returns a tuple like (dd,mm,yyyy)
+	def date_parse_error(self, meta, date_string):
+
+		correct=False
+		try:
+
+			date_tuple=( int(data_string[0:4]) , int(date_string[5:7]) , int(date_string[8:10]) )
+
+			correct=ErrorChecker.check_error(meta,date_tuple)
+
+		except ValueError:
+
+			print("date string doesnt contain number or not in the correct data format")
+			return correct
+
+		return correct
+
+
 
 
 if __name__ == "__main__":
