@@ -42,7 +42,7 @@ date_parse_error : Takes in datetime data in the string format.Returns True if t
 
 
 """
-class DB:
+class Helpers:
 
 
 	def __init__(self, cursor, metadata):

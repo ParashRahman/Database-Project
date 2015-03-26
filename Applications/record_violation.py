@@ -15,7 +15,7 @@ class RecordViolation(Application):
                         "Violation type", # 4
                         "Violation date", # 5
                         "Place",        # 6
-                        "Descriptions", # 7
+                        "Description", # 7
                         "Insert into database", # 8
                         "Exit: Cancel entering violation" ] # 9
 

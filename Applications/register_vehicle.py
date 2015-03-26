@@ -6,11 +6,78 @@ class RegisterVehicle(Application):
         self.cursor = c
         
         self.list_of_inputs = [ None for i in range(6) ]
+        self.list_of_owners = []
         self.cursor.execute( "SELECT * FROM vehicle" )
         self.metadata= self.cursor.description
         
-        self.list_of_inputs = 
-    
+        self.fields = [ "Serial no.", 
+                        "Vehicle Maker",
+                        "Vehicle Model",
+                        "Vehicle Year",
+                        "Vehicle Color",
+                        "Vehicle Type",
+                        "Add an Owner",
+                        "Delete an Owner" ]
+        
+        choice = get_option_start( 10 )
+        
+        if ( choice == 1 ):
+            get_serial_no(choice - 1)
+        elif ( choice == 2 ):
+            get_vehicle_maker(choice - 1)
+        elif ( choice == 3 ):
+            get_vehicle_model(choice - 1)
+        elif ( choice == 4 ):
+            get_vehicle_year(choice - 1)
+        elif ( choice == 5 ):
+            get_vehicle_color(choice - 1)
+        elif ( choice == 6 ):
+            get_vehicle_type(choice - 1)
+        elif ( choice == 7 ):
+            pass
+        elif ( choice == 8 ):
+            pass
+        # register vehicle option
+        elif ( choice == 9 ):
+            unifinished = 
+        # exit option
+        elif ( choice == 10 ):
+            return
+
+    # helper function for start_application()
+    def print_options(self, fields):
+        fields_length = len(fields) 
+        for i in range ( fields_length ):
+            print( "[{:}] {:} {:}".format( 
+                    i+1, fields[i], 
+                    "EMPTY" if self.list_of_inputs[i] == None else "") )
+        extra_fields = [ "Register Vehicle",
+                         "Exit (Cancel vehicle entry)" ]
+        for i in range ( 2 ):
+            print( "[{:}] {:}".format( 
+                    fields_length + i + 1, extra_fields[i] ) ) 
+
+    # helper function for start_application()
+    def get_option_start(self, num_choices):
+        self.print_options( self.fields )
+        try:
+            choice = int(input())
+        except:
+            choice = "Invalid"
+
+        while( type( choice ) is not int 
+               or choice >= num_choices + 1
+               or choice <= 0 ):
+            self.print_options( self.fields )
+            print( "Enter a valid integer choice: " )
+            try:
+                choice = int( input() )
+            except:
+                choice = "Invalid"
+        
+        return choice
+
+
     ###################################
     # GET SERIAL NO.
     ###################################
@@ -128,14 +195,40 @@ class RegisterVehicle(Application):
     # GET VEHICLE TYPE
     ###################################
     def get_vehicle_type( self, index ):
-        self.print_vehicle_types()
-        
-
-    # Helper function for get_vehicle_type(self, index)
-    def print_vehicle_types( self ):
         self.cursor.execute( "SELECT type FROM vehicle_type" )
         list_of_types = self.cursor.fetchall()
-        prompt_types = [ row[0] for row in list_of_types ]
-        for i in range( len( prompt_types ) ):
-            print ( "[{:}] {:}".format( i, prompt_types[i] )
+        prompt_types = [ row[0] for row in list_of_types ]        
+        self.print_vehicle_types( prompt_types )
+        choice = self.get_option_type( len( prompt_types ), prompt_types )
+        list_of_inputs = list_of_types[ choice - 1 ]
 
+    # Helper function for get_vehicle_type()
+    def print_vehicle_types( self, prompt_types ):
+        for i in range( len( prompt_types ) ):
+            print ( "[{:}] {:}".format( i, prompt_types[i] ) )
+
+    # Helper function for get_vehicle_type()
+    def get_option_type( self, num_choices, prompt_types ):
+        self.print_vehicle_types( prompt_types )
+        try:
+            choice = int(input())
+        except:
+            choice = "Invalid"
+
+        while( type( choice ) is not int 
+               or choice >= num_choices + 1
+               or choice <= 0 ):
+            self.print_vehicle_types( prompt_types )
+            print( "Enter a valid integer choice: " )
+            try:
+                choice = int( input() )
+            except:
+                choice = "Invalid"
+        
+        return choice
+
+    ###################################
+    # ADD AN OWNER
+    ###################################
+    def add_an_owner( self ):
+        
