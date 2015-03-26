@@ -19,30 +19,73 @@ class RegisterVehicle(Application):
                         "Add an Owner",
                         "Delete an Owner" ]
         
-        choice = get_option_start( 10 )
-        
-        if ( choice == 1 ):
-            get_serial_no(choice - 1)
-        elif ( choice == 2 ):
-            get_vehicle_maker(choice - 1)
-        elif ( choice == 3 ):
-            get_vehicle_model(choice - 1)
-        elif ( choice == 4 ):
-            get_vehicle_year(choice - 1)
-        elif ( choice == 5 ):
-            get_vehicle_color(choice - 1)
-        elif ( choice == 6 ):
-            get_vehicle_type(choice - 1)
-        elif ( choice == 7 ):
-            pass
-        elif ( choice == 8 ):
-            pass
-        # register vehicle option
-        elif ( choice == 9 ):
-            unifinished = 
-        # exit option
-        elif ( choice == 10 ):
-            return
+        while ( True ):
+            choice = self.get_option_start( 10 )
+
+            if ( choice == 1 ):
+                self.get_serial_no(choice - 1)
+            elif ( choice == 2 ):
+                self.get_vehicle_maker(choice - 1)
+            elif ( choice == 3 ):
+                self.get_vehicle_model(choice - 1)
+            elif ( choice == 4 ):
+                self.get_vehicle_year(choice - 1)
+            elif ( choice == 5 ):
+                self.get_vehicle_color(choice - 1)
+            elif ( choice == 6 ):
+                self.get_vehicle_type(choice - 1)
+            elif ( choice == 7 ):
+                pass
+            elif ( choice == 8 ):
+                pass
+            # register vehicle option
+            elif ( choice == 9 ):
+                # check if vehicle serial no. is not entered
+                if ( self.list_of_inputs[0] == None ):
+                    print( "ERROR: Vehicle Serial No. is required" )
+                    continue
+                
+                unfinished = False
+                for inp in self.list_of_inputs:
+                    if inp == None:
+                        unfinished = True
+
+                if ( len( self.list_of_owners ) ):
+                    print( "You have not entered any owners." )
+
+                if ( unfinished ):
+                    print( "You have not entered all the fields" )
+
+                char_answer = ""
+                while ( char_answer.strip().lower() not in [ 'y', 'n' ] ):
+                    char_answer = input( "Would you like to continue? (y/n): " )
+                
+                if ( unfinished ):
+                    for i in range( len( self.list_of_inputs ) ):
+                        if ( self.list_of_inputs[i] == None ):
+                            self.list_of_inputs[i] == "NULL"
+
+                if ( char_answer.strip().lower() == 'y' ):
+                    # Enter data into database
+                    self.cursor.execute( 
+                        "INSERT INTO vehicle VALUES(" 
+                        "{:}, {:}, {:}, {:}, {:}, {:} )"
+                        .format(self.list_of_inputs[0], 
+                                self.list_of_inputs[1], 
+                                self.list_of_inputs[2], 
+                                self.list_of_inputs[3]) )
+                    for owner in self.list_of_owners:
+                        self.cursor.execute(
+                            "INSERT INTO owner VALUES("
+                            "{:}, {:}, {:} )"
+                            .format( owner, self.list_of_inputs[0], 'n' ) )
+                    return
+                else:
+                    continue
+    
+            # exit option
+            elif ( choice == 10 ):
+                return
 
     # helper function for start_application()
     def print_options(self, fields):
@@ -50,7 +93,7 @@ class RegisterVehicle(Application):
         for i in range ( fields_length ):
             print( "[{:}] {:} {:}".format( 
                     i+1, fields[i], 
-                    "EMPTY" if self.list_of_inputs[i] == None else "") )
+                    "EMPTY" if i < 6 and self.list_of_inputs[i] == None else "") )
         extra_fields = [ "Register Vehicle",
                          "Exit (Cancel vehicle entry)" ]
         for i in range ( 2 ):
@@ -167,9 +210,9 @@ class RegisterVehicle(Application):
         while ( not ErrorChecker.check_error( 
                 self.metadata[index], user_input.strip() ) ):
             user_input = input( 
-                "Your year input was invalid. Enter the year of the vehicle." )
+                "Your year input was invalid. Enter the year of the vehicle: " )
 
-        if ( len( user_input.strip() > 0 ) ):
+        if ( len( user_input.strip() ) > 0 ):
             self.list_of_inputs[index] = user_input
 
     
@@ -198,14 +241,13 @@ class RegisterVehicle(Application):
         self.cursor.execute( "SELECT type FROM vehicle_type" )
         list_of_types = self.cursor.fetchall()
         prompt_types = [ row[0] for row in list_of_types ]        
-        self.print_vehicle_types( prompt_types )
         choice = self.get_option_type( len( prompt_types ), prompt_types )
-        list_of_inputs = list_of_types[ choice - 1 ]
+        self.list_of_inputs[index] = list_of_types[ choice - 1 ]
 
     # Helper function for get_vehicle_type()
     def print_vehicle_types( self, prompt_types ):
         for i in range( len( prompt_types ) ):
-            print ( "[{:}] {:}".format( i, prompt_types[i] ) )
+            print ( "[{:}] {:}".format( i + 1, prompt_types[i] ) )
 
     # Helper function for get_vehicle_type()
     def get_option_type( self, num_choices, prompt_types ):
@@ -231,4 +273,44 @@ class RegisterVehicle(Application):
     # ADD AN OWNER
     ###################################
     def add_an_owner( self ):
+        # initial get and check
+        user_input = input("Enter an owner's SIN "
+                           "(Enter nothing to cancel): ")
+
+        # initial check if user wants to cancel
+        if ( len( user_input ) == 0 ):
+            return
+
+        metadata = cursor.execute("SELECT owner_id FROM owner").description[0]
+
+        # initial check for if violator exists
+        exists = False
+        self.cursor.execute("SELECT serial_no FROM vehicle")
+        rows = self.cursor.fetchall()
+        rows = [ row[0].strip().lower() for row in rows ]
+        if ( user_input.strip().lower() in rows ):
+            exists = True
+
+        # While the input string is too long or the violator does not exist
+        short_enough = ErrorChecker.check_error(metadata, user_input)
+        while ( not short_enough or not exists):
+            if ( not short_enough ):
+                user_input = input("Your input was too long. "
+                                   "Enter owner's SIN " 
+                                   "(Enter nothing to cancel): ")
+            elif ( not exists ):
+                user_input = input("The vehicle is not in the database. "
+                                   "Enter the owner's SIN (Enter "
+                                   "nothing to cancel): ")
+
+            if ( len( user_input ) == 0 ):
+                return
+
+            if ( user_input.strip().lower() in rows ):
+                exists = True
+            else:
+                exists = False
+                
+            short_enough = ErrorChecker.check_error(metadata, user_input)
         
+        self.list_of_owners.append( "'{:}'".format(user_input.strip().lower()) )
