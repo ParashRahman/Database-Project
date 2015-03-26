@@ -18,7 +18,7 @@ class ErrorChecker:
     def check_error( meta_data_fragment, user_input ):
         # Check if empty string is ok
         null_ok = meta_data_fragment[6]
-        if ( null_ok and len(user_input) == 0 ):
+        if ( null_ok and (user_input == None or len(user_input) == 0) ):
             return True
 
         # Get the data_type to do the proper check
@@ -45,8 +45,6 @@ class ErrorChecker:
                 uinput_precision = decimal_user_input.as_tuple().exponent
                 if ( abs ( uinput_precision ) > precision ):
                     return False
-
-            print ( user_input + " " + str(1) )
 
             # integer types should correspond to the internal size
             internal_size = meta_data_fragment[4]
