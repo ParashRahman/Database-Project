@@ -75,3 +75,4 @@ class Search(Application):
 
 		for row in cursor:
           print(row)
+

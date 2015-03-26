@@ -1,19 +1,15 @@
 from application import Application
 from error_checker import ErrorChecker
-from metadata import Metadata
 
 class RecordViolation(Application):
-    current_number = 0
-    
     def start_application(self, c):
         self.cursor = c
 
         self.list_of_inputs = [ None for i in range(8) ]
 
-        self.list_of_inputs[0] = RecordViolation.current_number
-        RecordViolation.current_number += 1
+        self.get_violation_no(0)
 
-        self.fields = [ "Violator no.", # 1 
+        self.fields = [ "Violator no.", # 1
                         "Vehicle id",   # 2
                         "Office no.",   # 3
                         "Violation type", # 4
@@ -23,31 +19,56 @@ class RecordViolation(Application):
                         "Insert into database", # 8
                         "Exit: Cancel entering violation" ] # 9
 
-        m = Metadata(self.cursor)
-        self.metadata = m.meta_ticket()
+        self.cursor.execute( "SELECT * FROM ticket" )
+        self.metadata = self.cursor.description
 
         while ( True ):
             self.print_field_options( )
             choice = self.get_input( len(self.fields) )
 
             if ( choice == 1 ):
+                # violator no
                 self.get_violator_no(choice)
             elif ( choice == 2 ):
+                # vehicle id
                 self.get_vehicle_id(choice)
             elif ( choice == 3 ):
+                # office no
                 self.get_office_no(choice)
             elif ( choice == 4 ):
+                # violation type
                 self.get_violation_type(choice)
             elif ( choice == 5 ):
+                # violation date
                 self.get_violation_date(choice)
             elif ( choice == 6 ):
+                # violation place
                 self.get_violation_place(choice)
             elif ( choice == 7 ):
+                # violation description
                 self.get_violation_description(choice)
             # Enter data into db
             elif ( choice == 8 ):
+                unfinished = False
+                for i in range( len( self.metadata ) ):
+                    if ( self.list_of_inputs[i] == None ):
+                        self.list_of_inputs[i] = "NULL"
+                        unfinished = True
+
+                if ( unfinished ):
+                    char_answer = ""
+                    while ( char_answer.strip().lower() not in [ 'y', 'n' ] ):
+                        char_answer = input( 
+                            "You have left some fields blank. "
+                            "Would you like to continue saving?" )
                 
-                
+                # prepare date for insertion
+                if ( self.list_of_inputs[5] != "NULL" ):
+                    self.list_of_inputs[5] = "TO_DATE( {:}, {:} )".format( self.list_of_inputs[5][0], self.list_of_inputs[5][1] )
+
+                statement = "INSERT INTO ticket VALUES( {:}, {:}, {:}, {:}, {:}, {:}, {:}, {:} )".format( self.list_of_inputs[0], self.list_of_inputs[1], self.list_of_inputs[2], self.list_of_inputs[3], self.list_of_inputs[4], self.list_of_inputs[5], self.list_of_inputs[6], self.list_of_inputs[7] )
+
+                self.cursor.execute( statement ) 
                 return
             # Exit option
             elif ( choice == 9 ):
@@ -64,10 +85,11 @@ class RecordViolation(Application):
                      and i < 7 and not self.list_of_inputs[i+1]  
                      else "") )
 
-    # else returns the integer input choice
+    # returns the integer input choice
     def get_input( self, num_choices, 
                    prompt = "Choose a field to edit or an option: ",
                    fields = None, showEmpty = True ):
+
         if ( fields == None ):
             fields = self.fields
 
@@ -77,7 +99,7 @@ class RecordViolation(Application):
             choice = int(string_input)
         except:
             choice = "Invalid"
-        
+
         while ( type( choice ) is not int 
                 or choice >= num_choices + 1 
                 or choice <= 0 ):
@@ -90,6 +112,14 @@ class RecordViolation(Application):
                 choice = "Invalid"
 
         return choice
+
+    ###################################
+    # GENERATE VIOLATION NO.
+    ###################################
+    def get_violation_no( self, index ):
+        # gets the list of ids and adds 1 to the max
+        numbers = self.cursor.execute( "SELECT ticket_no FROM ticket" ).fetchall()
+        self.list_of_inputs[index] = max([ ID[0] for ID in numbers ]) + 1  
 
     ###################################
     # GET VIOLATOR NO.
@@ -141,7 +171,7 @@ class RecordViolation(Application):
                 
             short_enough = ErrorChecker.check_error(self.metadata[index], user_input)
         
-        self.list_of_inputs[index] = user_input.strip().lower()
+        self.list_of_inputs[index] = "'{:}'".format(user_input.strip().lower())
     
     ###################################
     # GET VEHICLE ID
@@ -185,7 +215,7 @@ class RecordViolation(Application):
                 
             short_enough = ErrorChecker.check_error(self.metadata[index], user_input)
         
-        self.list_of_inputs[index] = user_input.strip().lower()
+        self.list_of_inputs[index] = "'{:}'".format(user_input.strip().lower())
 
     
     ###################################
@@ -230,7 +260,7 @@ class RecordViolation(Application):
                 
             short_enough = ErrorChecker.check_error(self.metadata[index], user_input)
         
-        self.list_of_inputs[index] = user_input.strip().lower()
+        self.list_of_inputs[index] = "'{:}'".format(user_input.strip().lower())
 
     ###################################
     # GET VIOLATION TYPE
@@ -247,7 +277,7 @@ class RecordViolation(Application):
                                     "Pick a violation type", 
                                     prompt_types, False )
 
-        self.list_of_inputs[index] = list_of_types[user_input-1][0]
+        self.list_of_inputs[index] = "'{:}'".format(list_of_types[user_input-1][0])
 
     ###################################
     # GET VIOLATION DATE
@@ -255,7 +285,7 @@ class RecordViolation(Application):
     def get_violation_date(self, index):
         while ( True ):
             date_input = input ( "Enter the date ( DD/MM/YYYY ) "
-                                 "(Enter nothing to cancel) :")
+                                 "(Enter nothing to cancel): ")
             if ( len( date_input ) == 0 ):
                 return
 
@@ -281,7 +311,7 @@ class RecordViolation(Application):
             d = date_input[0]
             m = date_input[1]
             y = date_input[2]
-            self.list_of_inputs[index] = [ "{:}/{:}/{:}".format(d,m,y), "DD/MM/YYYY" ] 
+            self.list_of_inputs[index] = [ "'{:}/{:}/{:}'".format(d,m,y), "'DD/MM/YYYY'" ] 
 
                     
     ###################################
@@ -300,7 +330,7 @@ class RecordViolation(Application):
             else:
                 print( "Your input was too long" )
 
-        self.list_of_inputs[index] = user_input
+        self.list_of_inputs[index] = "'{:}'".format(user_input)
 
     ###################################
     # GET VIOLATOR DESCRIPTION
@@ -317,8 +347,7 @@ class RecordViolation(Application):
             else:
                 print( "Your input was too long" )
 
-        self.list_of_inputs[index] = user_input
-
+        self.list_of_inputs[index] = "'{:}'".format(user_input)
     
 class InvalidDateException(Exception):
     pass
