@@ -79,11 +79,12 @@ class Search(Application):
                                 LEFT JOIN restriction r
                                 ON l.licence_no = r.licence_no
                                 WHERE p.sin = l.sin
-                                AND (l.licence_no = '{}' OR p.name = '{}')""".format(user_input, user_input))
+                                AND (l.licence_no = '{}' OR LOWER(p.name) = LOWER('{}'))""".format(user_input, user_input))
 
             rows = self.cursor.fetchall()
 
             licence_dict = {}
+
             for row in rows:
                 licence_dict[row[1]] = []
             for row in rows:
