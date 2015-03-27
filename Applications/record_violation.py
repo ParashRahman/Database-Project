@@ -1,5 +1,6 @@
 from application import Application
 from error_checker import ErrorChecker
+from errors import InvalidDateException
 
 class RecordViolation(Application):
     def start_application(self, c):
@@ -15,7 +16,7 @@ class RecordViolation(Application):
                         "Violation type", # 4
                         "Violation date", # 5
                         "Place",        # 6
-                        "Descriptions", # 7
+                        "Description", # 7
                         "Insert into database", # 8
                         "Exit: Cancel entering violation" ] # 9
 
@@ -27,53 +28,31 @@ class RecordViolation(Application):
             choice = self.get_input( len(self.fields) )
 
             if ( choice == 1 ):
-                # violator no
                 self.get_violator_no(choice)
             elif ( choice == 2 ):
-                # vehicle id
                 self.get_vehicle_id(choice)
             elif ( choice == 3 ):
-                # office no
                 self.get_office_no(choice)
             elif ( choice == 4 ):
-                # violation type
                 self.get_violation_type(choice)
             elif ( choice == 5 ):
-                # violation date
                 self.get_violation_date(choice)
             elif ( choice == 6 ):
-                # violation place
                 self.get_violation_place(choice)
             elif ( choice == 7 ):
-                # violation description
                 self.get_violation_description(choice)
-            # Enter data into db
+            # Enter data into db option
             elif ( choice == 8 ):
-                unfinished = False
-                for i in range( len( self.metadata ) ):
-                    if ( self.list_of_inputs[i] == None ):
-                        self.list_of_inputs[i] = "NULL"
-                        unfinished = True
-
-                if ( unfinished ):
-                    char_answer = ""
-                    while ( char_answer.strip().lower() not in [ 'y', 'n' ] ):
-                        char_answer = input( 
-                            "You have left some fields blank. "
-                            "Would you like to continue saving?" )
-                
-                # prepare date for insertion
-                if ( self.list_of_inputs[5] != "NULL" ):
-                    self.list_of_inputs[5] = "TO_DATE( {:}, {:} )".format( self.list_of_inputs[5][0], self.list_of_inputs[5][1] )
-
-                statement = "INSERT INTO ticket VALUES( {:}, {:}, {:}, {:}, {:}, {:}, {:}, {:} )".format( self.list_of_inputs[0], self.list_of_inputs[1], self.list_of_inputs[2], self.list_of_inputs[3], self.list_of_inputs[4], self.list_of_inputs[5], self.list_of_inputs[6], self.list_of_inputs[7] )
-
-                self.cursor.execute( statement ) 
-                return
+                inserted = self.insert_into_database()
+                if ( inserted ):
+                    return
+                else:
+                    continue
             # Exit option
             elif ( choice == 9 ):
                 return
-
+    
+    # helper function for printing options
     def print_field_options( self, fields = None, showEmpty = True ):
         if ( fields == None ):
             fields = self.fields
@@ -349,5 +328,64 @@ class RecordViolation(Application):
 
         self.list_of_inputs[index] = "'{:}'".format(user_input)
     
-class InvalidDateException(Exception):
-    pass
+    ###################################
+    # INSERT INTO DATABASE
+    ###################################
+    def insert_into_database(self):
+        
+        # check if fields are empty
+        unfinished = False
+        for inp in self.list_of_inputs:
+            if ( inp == None ):
+                unfinished = True
+                
+        if ( unfinished ):
+            print( "You have left some fields blank." )
+
+        char_answer = ""
+        while ( char_answer.strip().lower() not in [ 'y', 'n' ] ):
+            char_answer = input( "Would you like to continue saving (y/n)? " )
+
+        if ( char_answer == 'n' ):
+            return False        
+
+        # change all Nones in input to "NULL"
+        for i in range( len( self.list_of_inputs ) ):
+            if ( self.list_of_inputs[i] == None ):
+                self.list_of_inputs[i] = "NULL" 
+                
+        # prepare date for insertion
+        if ( self.list_of_inputs[5] != "NULL" ):
+            self.list_of_inputs[5] = "TO_DATE( {:}, {:} )".format( 
+                self.list_of_inputs[5][0], 
+                self.list_of_inputs[5][1] )
+
+        # attempt to charge primary owner if vehicle entered 
+        #     and violator is not
+        if ( self.list_of_inputs[2] != "NULL" 
+             and self.list_of_inputs[1] == "NULL" ):
+            statement = "SELECT o.owner_id FROM owner o, " \
+                "vehicle v where v.serial_no = o.vehicle_id " \
+                "and o.is_primary_owner = 'y' and v.serial_no = " + \
+                self.list_of_inputs[2]
+            primary_owner = self.cursor.execute( statement ).fetchall()
+            if ( len( primary_owner ) == 0 ):
+                # Do nothing
+                pass
+            else:
+                primary_owner = "'{:}'".format( primary_owner[0][0] )
+                self.list_of_inputs[1] = primary_owner
+
+        statement = "INSERT INTO ticket VALUES( " \
+            "{:}, {:}, {:}, {:}, {:}, {:}, {:}, {:} )".format( 
+            self.list_of_inputs[0], 
+            self.list_of_inputs[1], 
+            self.list_of_inputs[2], 
+            self.list_of_inputs[3], 
+            self.list_of_inputs[4], 
+            self.list_of_inputs[5], 
+            self.list_of_inputs[6], 
+            self.list_of_inputs[7] )
+            
+        self.cursor.execute( statement ) 
+        return True
