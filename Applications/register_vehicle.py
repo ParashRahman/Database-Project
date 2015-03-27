@@ -42,57 +42,8 @@ class RegisterVehicle(Application):
                 self.delete_an_owner()
             # Register vehicle option
             elif ( choice == 9 ):
-                # check if vehicle serial no. is not entered
-                if ( self.list_of_inputs[0] == None ):
-                    print( "ERROR: Vehicle Serial No. is required" )
-                    continue
-                
-                unfinished = False
-                for inp in self.list_of_inputs:
-                    if inp == None:
-                        unfinished = True
-
-                if ( len( self.list_of_owners ) == 0 ):
-                    print( "You have not entered any owners." )
-
-                if ( unfinished ):
-                    print( "You have not entered all the fields" )
-
-                char_answer = ""
-                while ( char_answer.strip().lower() not in [ 'y', 'n' ] ):
-                    char_answer = input( "Would you like to continue? (y/n): " )
-
-                if ( char_answer.strip().lower() == 'y' ):
-                    if ( unfinished ):
-                        for i in range( len( self.list_of_inputs ) ):
-                            if ( self.list_of_inputs[i] == None ):
-                                self.list_of_inputs[i] = "NULL"
-
-                        # Enter data into database
-                        stmnt = "INSERT INTO vehicle VALUES(" + \
-                        "{:}, {:}, {:}, {:}, {:}, {:} )".format(
-                        self.list_of_inputs[0], 
-                        self.list_of_inputs[1], 
-                        self.list_of_inputs[2], 
-                        self.list_of_inputs[3],
-                        self.list_of_inputs[4],
-                        self.list_of_inputs[5] ) 
-                
-                    self.cursor.execute( stmnt )
-                    
-                    for owner in self.list_of_owners:
-                        is_primary = "'n'"
-                        if ( self.primary_owner == owner ):
-                            is_primary = "'y'"
-                            
-                        stmnt = "INSERT INTO owner VALUES(" \
-                            "{:}, {:}, {:} )".format( 
-                            owner, self.list_of_inputs[0], is_primary )
-                        self.cursor.execute(stmnt)
-                    return
-                else:
-                    continue
-    
+                if ( self.enter_into_database() ):
+                    return    
             # Exit option
             elif ( choice == 10 ):
                 return
@@ -374,3 +325,59 @@ class RegisterVehicle(Application):
                 choice = "Invalid"
         
         return choice
+
+    ###################################
+    # ENTER INTO DATABASE
+    ###################################
+    def enter_into_database( self ):
+        # check if vehicle serial no. is not entered
+        if ( self.list_of_inputs[0] == None ):
+            print( "ERROR: Vehicle Serial No. is required" )
+            return False
+
+        unfinished = False
+        for inp in self.list_of_inputs:
+            if inp == None:
+                unfinished = True
+
+        if ( len( self.list_of_owners ) == 0 ):
+            print( "You have not entered any owners." )
+
+        if ( unfinished ):
+            print( "You have not entered all the fields" )
+
+        char_answer = ""
+        while ( char_answer.strip().lower() not in [ 'y', 'n' ] ):
+            char_answer = input( "Would you like to continue? (y/n): " )
+
+        if ( char_answer.strip().lower() == 'y' ):
+            if ( unfinished ):
+                for i in range( len( self.list_of_inputs ) ):
+                    if ( self.list_of_inputs[i] == None ):
+                        self.list_of_inputs[i] = "NULL"
+
+            # Enter data into database
+            stmnt = "INSERT INTO vehicle VALUES(" + \
+                "{:}, {:}, {:}, {:}, {:}, {:} )".format(
+                self.list_of_inputs[0], 
+                self.list_of_inputs[1], 
+                self.list_of_inputs[2], 
+                self.list_of_inputs[3],
+                self.list_of_inputs[4],
+                self.list_of_inputs[5] ) 
+
+            self.cursor.execute( stmnt )
+
+            for owner in self.list_of_owners:
+                is_primary = "'n'"
+                if ( self.primary_owner == owner ):
+                    is_primary = "'y'"
+
+                stmnt = "INSERT INTO owner VALUES(" \
+                    "{:}, {:}, {:} )".format( 
+                    owner, self.list_of_inputs[0], is_primary )
+                self.cursor.execute(stmnt)
+            
+            return True
+        else:
+            return False
