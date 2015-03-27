@@ -295,7 +295,7 @@ class RegisterVehicle(Application):
 
         # initial check for if violator exists
         exists = False
-        self.cursor.execute("SELECT serial_no FROM vehicle")
+        self.cursor.execute("SELECT SIN FROM people")
         rows = self.cursor.fetchall()
         rows = [ row[0].strip().lower() for row in rows ]
         if ( user_input.strip().lower() in rows ):
@@ -315,6 +315,9 @@ class RegisterVehicle(Application):
                 if char_answer.strip().lower() == 'y':
                     a = add_person.AddPerson()
                     a.start_application(self.cursor)
+                    self.cursor.execute("SELECT SIN FROM people")
+                    rows = self.cursor.fetchall()
+                    rows = [ row[0].strip().lower() for row in rows ]
 
                 user_input = input("The owner was not in the database. "
                                    "Enter the owner's SIN (Enter "

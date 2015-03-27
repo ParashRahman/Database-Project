@@ -68,7 +68,7 @@ class AddPerson(Application):
                     # Enter data into database
                     stmnt = "INSERT INTO people VALUES (" \
                         "{:}, {:}, {:}, {:}, {:}, {:}, " \
-                        "{:}, {:}, {:} )".format(
+                        "{:}, {:}, TO_DATE( {:}, {:} ) )".format(
                         self.list_of_inputs[0],
                         self.list_of_inputs[1],
                         self.list_of_inputs[2],
@@ -77,9 +77,9 @@ class AddPerson(Application):
                         self.list_of_inputs[5],
                         self.list_of_inputs[6],
                         self.list_of_inputs[7],
-                        self.list_of_inputs[8] )
+                        self.list_of_inputs[8][0],
+                        self.list_of_inputs[8][1] )
                 
-                    print( stmnt )
                     self.cursor.execute( stmnt )
                     return
                 else:
