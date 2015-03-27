@@ -2,6 +2,7 @@ from application import Application
 from error_checker import ErrorChecker
 from errors import InvalidDateException
 import add_person
+import cx_Oracle
 
 class AutoTransaction(Application):
     def start_application(self, c):
@@ -11,10 +12,9 @@ class AutoTransaction(Application):
                         "Buyer",
                         "Vehicle",
                         "Date",
-                        "Price",
-                        "Is Primary Owner?" ]
+                        "Price" ]
 
-        self.list_of_inputs = [ None for i in range( 7 )  ]
+        self.list_of_inputs = [ None for i in range( 6 )  ]
 
         generate_transaction_id( 0 )
 
@@ -23,7 +23,10 @@ class AutoTransaction(Application):
     ###################################
     def generate_transaction_id( self, index ):
         numbers = self.cursor.execute( "SELECT transaction_id FROM auto_sale" )
-        self.list_of_inputs[index] = max([ ID[0] for ID in numbers ]) + 1
+        if ( len( numbers ) == 0 ):
+            self.list_of_inputs[index] = 0
+        else:
+            self.list_of_inputs[index] = max([ ID[0] for ID in numbers ]) + 1
 
     ###################################
     # GET VEHICLE ID
@@ -37,7 +40,7 @@ class AutoTransaction(Application):
         if ( len( user_input ) == 0 ):
             return
 
-        # initial check for if violator exists
+        # initial check for if vehicle exists
         exists = False
         self.cursor.execute("SELECT serial_no FROM vehicle")
         rows = self.cursor.fetchall()
@@ -45,7 +48,7 @@ class AutoTransaction(Application):
         if ( user_input.strip().lower() in rows ):
             exists = True
 
-        # While the input string is too long or the violator does not exist
+        # While the input string is too long or the vehicle does not exist
         short_enough = ErrorChecker.check_error(self.metadata[index], user_input)
         while ( not short_enough or not exists):
             if ( not short_enough ):
@@ -54,7 +57,7 @@ class AutoTransaction(Application):
                                    "(Enter nothing to cancel): ")
             elif ( not exists ):
                 user_input = input("The vehicle is not in the database. "
-                                   "Enter the violator's SIN (Enter "
+                                   "Enter the vehicle's serial number (Enter "
                                    "nothing to cancel): ")
 
             if ( len( user_input ) == 0 ):
@@ -124,4 +127,157 @@ class AutoTransaction(Application):
         
         self.list_of_inputs[index] = "'{:}'".format(user_input.strip().lower())
 
+    ###################################
+    # GET SELLER
+    ###################################
+    def get_seller( self, index ):
+        # initial get and check
+        user_input = input("Enter the seller's serial no  "
+                           "(Enter nothing to cancel): ")
+
+        # initial check if user wants to cancel
+        if ( len( user_input ) == 0 ):
+            return
+
+        # initial check for if seller exists
+        exists = False
+        self.cursor.execute("SELECT SIN FROM people")
+        rows = self.cursor.fetchall()
+        rows = [ row[0].strip().lower() for row in rows ]
+        if ( user_input.strip().lower() in rows ):
+            exists = True
+
+        # While the input string is too long or the seller does not exist
+        short_enough = ErrorChecker.check_error(self.metadata[index], user_input)
+        while ( not short_enough or not exists):
+            if ( not short_enough ):
+                user_input = input("Your input was too long. "
+                                   "Enter the seller's SIN number " 
+                                   "(Enter nothing to cancel): ")
+            elif ( not exists ):
+                user_input = input("The vehicle is not in the database. "
+                                   "Enter the seller's SIN number (Enter "
+                                   "nothing to cancel): ")
+
+            if ( len( user_input ) == 0 ):
+                return
+
+            if ( user_input.strip().lower() in rows ):
+                exists = True
+            else:
+                exists = False
+                
+            short_enough = ErrorChecker.check_error(self.metadata[index], user_input)
+        
+        self.list_of_inputs[index] = "'{:}'".format(user_input.strip().lower())
+
+    ###################################
+    # GET DATE
+    ###################################
+    def get_date(self, index):
+        while ( True ):
+            date_input = input ( "Enter the date ( DD/MM/YYYY ) "
+                                 "(Enter nothing to cancel): ")
+            if ( len( date_input ) == 0 ):
+                return
+
+            date_input = date_input.split('/')
+            try:
+                if len(date_input) != 3:
+                    raise InvalidDateException()
+                for component in date_input:
+                    if ( not ErrorChecker.check_str_int(component) ):
+                        raise InvalidDateException()
+                
+                date_input = [ int(comp) for comp in date_input ]
+                
+                if (not ErrorChecker.check_error(self.metadata[index], date_input)):
+                    raise InvalidDateException()
+                
+                break
+
+            except ( InvalidDateException ):
+                print( "Your date was invalid" )
+            
+        if ( date_input != None ):
+            d = date_input[0]
+            m = date_input[1]
+            y = date_input[2]
+            self.list_of_inputs[index] = [ "'{:}/{:}/{:}'".format(d,m,y), "'DD/MM/YYYY'" ] 
     
+    ###################################
+    # GET PRICE
+    ###################################
+    def get_price( self, index ):
+        while ( True ):
+            user_input = input("Enter the price of the vehicle "
+                               "(Enter nothing to cancel): ")
+            if ( len( user_input ) == 0 ):
+                return
+
+            if ( ErrorChecker.check_error( self.metadata[index], user_input ) ):
+                break
+            else:
+                print( "Your input was should be numeric with two decimal places and atmost 7 digits. Example: 5.34 , 12.23 , 21.00 " )
+
+        self.list_of_inputs[index] = "{:}".format(user_input)
+
+    ###################################
+    # INSERT INTO DATABASE
+    ###################################
+    def insert_into_database( self ):
+        unfinished = False
+        for inp in self.list_of_inputs:
+            if inp == None:
+                unfinished = True
+
+        if ( len( self.list_of_owners ) == 0 ):
+            print( "You have not entered any owners." )
+
+        if ( unfinished ):
+            print( "You have not entered all the fields" )
+
+        char_answer = ""
+        while ( char_answer.strip().lower() not in [ 'y', 'n' ] ):
+            char_answer = input( "Would you like to continue? (y/n): " )
+
+        if ( char_answer.strip().lower() == 'y' ):
+            if ( self.list_of_inputs[2] == None ):
+                self.change_owner( list_of_inputs[2].strip().lower(),
+                                   list_of_inputs[3].strip().lower(),
+                                   'y' )
+
+            if ( unfinished ):
+                for i in range( len( self.list_of_inputs ) ):
+                    if ( self.list_of_inputs[i] == None ):
+                        self.list_of_inputs[i] = "NULL"
+
+            # Enter data into database
+            stmnt = "INSERT INTO vehicle VALUES( " + \
+                "{:}, {:}, {:}, {:}, {:} )".format(
+                self.list_of_inputs[0], 
+                self.list_of_inputs[1], 
+                self.list_of_inputs[2], 
+                self.list_of_inputs[3],
+                self.list_of_inputs[4] )
+
+            print(stmnt)
+            self.cursor.execute( stmnt )
+
+
+        else:
+            return False
+
+
+    # Helper function for inserting into the database
+    def change_owner(self, owner_sin,  vehicle_id, is_primary_owner):
+        statement="delete from owner where vehicle_id='{}'".format(str(vehicle_id))
+        self.cursor.execute(statement)
+        value_statement='('+str(owner_sin)+','+str(vehicle_id)+','+"'"+str(is_primary_owner)+"'"+')'
+        statement2="insert into owner values"+value_statement
+
+        try:
+            self.cursor.execute(statement2)
+        except Exception as e:
+            print("Error! cannot add an owner record")
+        return 
