@@ -14,15 +14,73 @@ class AutoTransaction(Application):
                         "Date",
                         "Price" ]
 
+        self.cursor.execute( "SELECT * FROM vehicle" )
+        self.metadata = self.cursor.description
+
         self.list_of_inputs = [ None for i in range( 6 )  ]
 
-        generate_transaction_id( 0 )
+        self.generate_transaction_id( 0 )
+        
+        while ( True ):
+            choice = self.get_option_start( 7 )
+
+            if ( choice == 1 ):
+                self.get_seller(choice)
+            elif ( choice == 2 ):
+                self.get_buyer(choice)
+            elif ( choice == 3 ):
+                self.get_vehicle_id(choice)
+            elif ( choice == 4 ):
+                self.get_date(choice)
+            elif ( choice == 5 ):
+                self.get_price(choice)
+            # Register vehicle option
+            elif ( choice == 6 ):
+                if ( self.insert_into_database() ):
+                    return    
+            # Exit option
+            elif ( choice == 7 ):
+                return
+
+    # helper function for start_application()
+    def print_options(self, fields):
+        fields_length = len(fields) 
+        for i in range ( fields_length ):
+            print( "[{:}] {:} {:}".format( 
+                    i+1, fields[i], 
+                    "EMPTY" if i < 6 and self.list_of_inputs[i+1] == None else "") )
+        extra_fields = [ "Register Vehicle",
+                         "Exit (Cancel auto transaction entry)" ]
+        for i in range ( 2 ):
+            print( "[{:}] {:}".format( 
+                    fields_length + i + 1, extra_fields[i] ) ) 
+
+    # helper function for start_application()
+    def get_option_start(self, num_choices):
+        self.print_options( self.fields )
+        try:
+            choice = int(input())
+        except:
+            choice = "Invalid"
+
+        while( type( choice ) is not int 
+               or choice >= num_choices + 1
+               or choice <= 0 ):
+            self.print_options( self.fields )
+            print( "Enter a valid integer choice: " )
+            try:
+                choice = int( input() )
+            except:
+                choice = "Invalid"
+        
+        return choice
 
     ###################################
     # GENERATE TRANSACTION ID
     ###################################
     def generate_transaction_id( self, index ):
-        numbers = self.cursor.execute( "SELECT transaction_id FROM auto_sale" )
+        numbers = self.cursor.execute( 
+            "SELECT transaction_id FROM auto_sale" ).fetchall()
         if ( len( numbers ) == 0 ):
             self.list_of_inputs[index] = 0
         else:
@@ -218,7 +276,7 @@ class AutoTransaction(Application):
             if ( ErrorChecker.check_error( self.metadata[index], user_input ) ):
                 break
             else:
-                print( "Your input was should be numeric with two decimal places and atmost 7 digits. Example: 5.34 , 12.23 , 21.00 " )
+                print( "Your input was should be numeric with two decimal places and at most 11 digits. Example: 5.34 , 12.23 , 21.00 " )
 
         self.list_of_inputs[index] = "{:}".format(user_input)
 
@@ -230,9 +288,6 @@ class AutoTransaction(Application):
         for inp in self.list_of_inputs:
             if inp == None:
                 unfinished = True
-
-        if ( len( self.list_of_owners ) == 0 ):
-            print( "You have not entered any owners." )
 
         if ( unfinished ):
             print( "You have not entered all the fields" )
