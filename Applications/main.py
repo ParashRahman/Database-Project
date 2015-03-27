@@ -1,6 +1,10 @@
 import cx_Oracle
 import getpass
 import record_violation
+import auto_transaction
+import register_vehicle
+import register_license
+import search
 
 class Main:
     cursor = None
@@ -34,16 +38,20 @@ class Main:
             # obj = YOUR_APPLICATION_NAME()
             # obj.start_application(Main.cursor)
             if ( choice == 1 ):
-                pass
+                v = register_vehicle.RegisterVehicle()
+                v.start_application(Main.cursor)
             elif ( choice == 2 ):
-                pass
+                a = auto_transaction.AutoTransaction()
+                a.start_application(Main.cursor)
             elif ( choice == 3 ):
-                pass
+                d = register_license.RegisterLicense()
+                d.start_application(Main.cursor)
             elif ( choice == 4 ):
                 v = record_violation.RecordViolation()
                 v.start_application(Main.cursor)
             elif ( choice == 5 ):
-                pass
+                s = search.Search()
+                s.start_application(Main.cursor)
             elif ( choice == 6 ):
                 break
     
