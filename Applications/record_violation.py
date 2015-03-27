@@ -392,3 +392,15 @@ class RecordViolation(Application):
             
         self.cursor.execute( statement ) 
         return True
+
+    def change_owner(self,owner_sin,vehicle_id,is_primary_owner):
+        statement="delete from owner where vehicle_id='{}'".format(str(vehicle_id))
+        self.cursor.execute(statement)
+        value_statement='('+"'"+str(owner_sin)+"'"+','+"'"+str(vehicle_id)+"'"+','+"'"+str(is_primary_owner)+"'"+')'
+        statement2="insert into owner values"+value_statement
+
+        try:
+            self.cursor.execute(statement2)
+        except Exception as e:
+            print("Error! cannot add an owner record")
+        return 
