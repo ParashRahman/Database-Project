@@ -123,7 +123,17 @@ class RegisterLicense(Application):
     # GET LICENSE TYPE
     ###################################
     def get_license_type(self, index):
-        pass
+        while ( True ):
+            user_input = input("Enter the license type "
+                               "(Enter nothing to cancel): ")
+            if ( len( user_input ) == 0 ):
+                return
+            if ( ErrorChecker.check_error( self.metadata[index], user_input ) ):
+                break
+            else:
+                print( "Your input was too long" )
+
+        self.list_of_inputs[index] = "'{:}'".format(user_input)
 
     ###################################
     # GET PHOTOGRAPH

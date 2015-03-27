@@ -307,7 +307,6 @@ class RecordViolation(Application):
                                "(Enter nothing to cancel): ")
             if ( len( user_input ) == 0 ):
                 return
-
             if ( ErrorChecker.check_error( self.metadata[index], user_input ) ):
                 break
             else:
