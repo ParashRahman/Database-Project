@@ -80,6 +80,7 @@ class AddPerson(Application):
                         self.list_of_inputs[8][0],
                         self.list_of_inputs[8][1] )
                 
+                    print(stmnt)
                     self.cursor.execute( stmnt )
                     return
                 else:
@@ -188,7 +189,19 @@ class AddPerson(Application):
     # GET HEIGHT
     ###################################
     def get_height( self, index ):
-        pass
+        while ( True ):
+            user_input = input("Enter the height of the person "
+                               "(Enter nothing to cancel): ")
+            if ( len( user_input ) == 0 ):
+                return
+
+            if ( ErrorChecker.check_error( self.metadata[index], user_input ) ):
+                break
+            else:
+                print( "Your input was should be numeric with two decimal places and atmost 7 digits. Example: 5.34 , 12.23 , 21.00 " )
+
+        self.list_of_inputs[index] = "{:}".format(user_input)
+
         """
         get input from user
         check with metadata[index]
@@ -199,7 +212,18 @@ class AddPerson(Application):
     # GET WEIGHT
     ###################################
     def get_weight( self, index ):
-        pass
+        while ( True ):
+            user_input = input("Enter the weight of the person "
+                               "(Enter nothing to cancel): ")
+            if ( len( user_input ) == 0 ):
+                return
+
+            if ( ErrorChecker.check_error( self.metadata[index], user_input ) ):
+                break
+            else:
+                print( "Your input was should be numeric with two decimal places and atmost 7 digits. Example: 5.34 , 12.23 , 21.00 " )
+
+        self.list_of_inputs[index] = "{:}".format(user_input)
 
     ###################################
     # GET EYE COLOR

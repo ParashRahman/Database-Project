@@ -199,11 +199,11 @@ class RegisterVehicle(Application):
     # GET VEHICLE TYPE
     ###################################
     def get_vehicle_type( self, index ):
-        self.cursor.execute( "SELECT type FROM vehicle_type" )
+        self.cursor.execute( "SELECT * FROM vehicle_type" )
         list_of_types = self.cursor.fetchall()
-        prompt_types = [ row[0] for row in list_of_types ]        
+        prompt_types = [ row[1] for row in list_of_types ]        
         choice = self.get_option_type( len( prompt_types ), prompt_types )
-        self.list_of_inputs[index] = list_of_types[ choice - 1 ]
+        self.list_of_inputs[index] = list_of_types[choice-1][0]
 
     # Helper function for get_vehicle_type()
     def print_vehicle_types( self, prompt_types ):
@@ -364,8 +364,9 @@ class RegisterVehicle(Application):
                 self.list_of_inputs[2], 
                 self.list_of_inputs[3],
                 self.list_of_inputs[4],
-                self.list_of_inputs[5] ) 
+                self.list_of_inputs[5] )
 
+            print(stmnt)
             self.cursor.execute( stmnt )
 
             for owner in self.list_of_owners:
