@@ -1,5 +1,6 @@
 from application import Application
 from error_checker import ErrorChecker
+from errors import InvalidDateException
 
 class RecordViolation(Application):
     def start_application(self, c):
@@ -349,5 +350,3 @@ class RecordViolation(Application):
 
         self.list_of_inputs[index] = "'{:}'".format(user_input)
     
-class InvalidDateException(Exception):
-    pass

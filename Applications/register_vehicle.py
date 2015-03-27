@@ -1,5 +1,6 @@
 from application import Application
 from error_checker import ErrorChecker
+import add_person
 
 class RegisterVehicle(Application):
     def start_application(self, c):
@@ -7,8 +8,9 @@ class RegisterVehicle(Application):
         
         self.list_of_inputs = [ None for i in range(6) ]
         self.list_of_owners = []
+        self.primary_owner = None
         self.cursor.execute( "SELECT * FROM vehicle" )
-        self.metadata= self.cursor.description
+        self.metadata = self.cursor.description
         
         self.fields = [ "Serial no.", 
                         "Vehicle Maker",
@@ -35,10 +37,10 @@ class RegisterVehicle(Application):
             elif ( choice == 6 ):
                 self.get_vehicle_type(choice - 1)
             elif ( choice == 7 ):
-                pass
+                self.add_an_owner()
             elif ( choice == 8 ):
-                pass
-            # register vehicle option
+                self.delete_an_owner()
+            # Register vehicle option
             elif ( choice == 9 ):
                 # check if vehicle serial no. is not entered
                 if ( self.list_of_inputs[0] == None ):
@@ -50,7 +52,7 @@ class RegisterVehicle(Application):
                     if inp == None:
                         unfinished = True
 
-                if ( len( self.list_of_owners ) ):
+                if ( len( self.list_of_owners ) == 0 ):
                     print( "You have not entered any owners." )
 
                 if ( unfinished ):
@@ -59,31 +61,39 @@ class RegisterVehicle(Application):
                 char_answer = ""
                 while ( char_answer.strip().lower() not in [ 'y', 'n' ] ):
                     char_answer = input( "Would you like to continue? (y/n): " )
-                
-                if ( unfinished ):
-                    for i in range( len( self.list_of_inputs ) ):
-                        if ( self.list_of_inputs[i] == None ):
-                            self.list_of_inputs[i] == "NULL"
 
                 if ( char_answer.strip().lower() == 'y' ):
-                    # Enter data into database
-                    self.cursor.execute( 
-                        "INSERT INTO vehicle VALUES(" 
-                        "{:}, {:}, {:}, {:}, {:}, {:} )"
-                        .format(self.list_of_inputs[0], 
-                                self.list_of_inputs[1], 
-                                self.list_of_inputs[2], 
-                                self.list_of_inputs[3]) )
+                    if ( unfinished ):
+                        for i in range( len( self.list_of_inputs ) ):
+                            if ( self.list_of_inputs[i] == None ):
+                                self.list_of_inputs[i] = "NULL"
+
+                        # Enter data into database
+                        stmnt = "INSERT INTO vehicle VALUES(" + \
+                        "{:}, {:}, {:}, {:}, {:}, {:} )".format(
+                        self.list_of_inputs[0], 
+                        self.list_of_inputs[1], 
+                        self.list_of_inputs[2], 
+                        self.list_of_inputs[3],
+                        self.list_of_inputs[4],
+                        self.list_of_inputs[5] ) 
+                
+                    self.cursor.execute( stmnt )
+                    
                     for owner in self.list_of_owners:
-                        self.cursor.execute(
-                            "INSERT INTO owner VALUES("
-                            "{:}, {:}, {:} )"
-                            .format( owner, self.list_of_inputs[0], 'n' ) )
+                        is_primary = "'n'"
+                        if ( self.primary_owner == owner ):
+                            is_primary = "'y'"
+                            
+                        stmnt = "INSERT INTO owner VALUES(" \
+                            "{:}, {:}, {:} )".format( 
+                            owner, self.list_of_inputs[0], is_primary )
+                        self.cursor.execute(stmnt)
                     return
                 else:
                     continue
     
-            # exit option
+            # Exit option
             elif ( choice == 10 ):
                 return
 
@@ -141,7 +151,7 @@ class RegisterVehicle(Application):
         if ( user_input.strip().lower() in rows ):
             exists = True
 
-        # While the input string is too long or the violator does not exist
+        # While the input string is too long or the vehicle exists
         short_enough = ErrorChecker.check_error(self.metadata[index], user_input)
         while ( not short_enough or exists):
             if ( not short_enough ):
@@ -213,7 +223,7 @@ class RegisterVehicle(Application):
                 "Your year input was invalid. Enter the year of the vehicle: " )
 
         if ( len( user_input.strip() ) > 0 ):
-            self.list_of_inputs[index] = user_input
+            self.list_of_inputs[index] = "'{:}'".format(user_input)
 
     
     ###################################
@@ -281,7 +291,7 @@ class RegisterVehicle(Application):
         if ( len( user_input ) == 0 ):
             return
 
-        metadata = cursor.execute("SELECT owner_id FROM owner").description[0]
+        metadata = self.cursor.execute("SELECT owner_id FROM owner").description[0]
 
         # initial check for if violator exists
         exists = False
@@ -299,7 +309,14 @@ class RegisterVehicle(Application):
                                    "Enter owner's SIN " 
                                    "(Enter nothing to cancel): ")
             elif ( not exists ):
-                user_input = input("The vehicle is not in the database. "
+                char_answer = ""
+                while ( char_answer.strip().lower() not in [ 'y', 'n' ] ):
+                    char_answer = input( "Would you like to add this person to the database? (y/n): " )
+                if char_answer.strip().lower() == 'y':
+                    a = add_person.AddPerson()
+                    a.start_application(self.cursor)
+
+                user_input = input("The owner was not in the database. "
                                    "Enter the owner's SIN (Enter "
                                    "nothing to cancel): ")
 
@@ -313,4 +330,44 @@ class RegisterVehicle(Application):
                 
             short_enough = ErrorChecker.check_error(metadata, user_input)
         
+        char_answer = ""
+        while ( char_answer.strip().lower() not in [ 'y', 'n' ] ):
+            char_answer = input( "Would you like to set this person as the primary owner? (y/n): " )
+
+        if char_answer.strip().lower() == 'y':
+            self.primary_owner = "'{:}'".format(user_input.strip().lower())
+
         self.list_of_owners.append( "'{:}'".format(user_input.strip().lower()) )
+
+    ###################################
+    # DELETE AN OWNER
+    ###################################
+    def delete_an_owner( self ):
+        for i in range ( len ( self.list_of_owners ) ):
+            print( "[{:}] {:}".format( i+1, self.list_of_owners[i] ) )
+        print( "[{:}] Cancel".format( len(self.list_of_owners) + 1 ) )
+        choice = self.get_option_delete( len(self.list_of_owners) + 1 )
+        
+        # select cancel option
+        if ( choice == len( self.list_of_owners ) + 1 ):
+            return
+
+        self.list_of_owners.remove(self.list_of_owners[choice-1])
+
+    # Helper function for delete_an_owner()
+    def get_option_delete( self, num_choices ):
+        try:
+            choice = int(input())
+        except:
+            choice = "Invalid"
+
+        while( type( choice ) is not int 
+               or choice >= num_choices + 1
+               or choice <= 0 ):
+            print( "Enter a valid integer choice: " )
+            try:
+                choice = int( input() )
+            except:
+                choice = "Invalid"
+        
+        return choice
