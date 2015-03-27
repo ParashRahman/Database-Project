@@ -1,6 +1,7 @@
 from application import Application
 from error_checker import ErrorChecker
 from errors import InvalidDateException
+import add_person
 
 class RecordViolation(Application):
     def start_application(self, c):
@@ -134,8 +135,11 @@ class RecordViolation(Application):
                                          "Would you like to add the person? (y/n): " )
                 
                 if ( char_answer == 'y' ):
-                    # TODO: Call add person
-                    pass
+                    a = add_person.AddPerson()
+                    a.start_application(self.cursor)
+                    self.cursor.execute("SELECT SIN FROM people")
+                    rows = self.cursor.fetchall()
+                    rows = [ row[0].strip().lower() for row in rows ] 
 
                 user_input = input("Enter the violator's SIN (Enter "
                                    "nothing to cancel): ")
