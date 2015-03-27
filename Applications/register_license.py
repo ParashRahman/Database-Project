@@ -34,7 +34,7 @@ class RegisterLicense(Application):
                 self.get_issuing_date(choice-1)
             elif ( choice == 6 ):
                 self.get_expiry_date(choice-1)
-            # Register vehicle option
+            # Register license option
             elif ( choice == 7 ):
                 if ( self.enter_into_database() ):
                     return
@@ -80,7 +80,7 @@ class RegisterLicense(Application):
     ###################################
     def get_license_no(self, index):
         # initial get and check
-        user_input = input("Enter the vehicle serial number "
+        user_input = input("Enter the license number "
                            "(Enter nothing to cancel): ")
 
         # initial check if user wants to cancel
@@ -117,7 +117,7 @@ class RegisterLicense(Application):
                 
             short_enough = ErrorChecker.check_error(self.metadata[index], user_input)
         
-        self.list_of_inputs[index] = "'{:}'".format(user_input.strip().lower())
+        self.list_of_inputs[index] = user_input.strip().lower()
 
     ###################################
     # GET LICENSE TYPE
@@ -152,9 +152,21 @@ class RegisterLicense(Application):
         if ( user_input.strip().lower() in rows ):
             exists = True
 
-        # While the input string is too long or the person does not exist
+        # initial check for if person has license
+        person_licensed = False
+        if ( exists ):
+            licences = self.cursor.execute( 
+                "SELECT * FROM drive_licence WHERE SIN = {}"
+                .format( user_input.strip().lower() ) ).fetchall()
+            if ( len( licences ) > 0 ):
+                person_licensed = True
+
+        # initial check for if number is short enough
         short_enough = ErrorChecker.check_error(self.metadata[index], user_input)
-        while ( not short_enough or not exists):
+        
+        # While the input string is too long or the person does not exist
+        # or the person has a license
+        while ( not short_enough or not exists or person_licensed ):
             if ( not short_enough ):
                 user_input = input("Your input was too long. "
                                    "Enter the person's SIN " 
@@ -162,7 +174,7 @@ class RegisterLicense(Application):
             elif ( not exists ):
                 char_answer = ""
                 while ( char_answer.strip().lower() not in [ 'y', 'n' ] ):
-                    char_answer = input( "The violator is not in the database. "
+                    char_answer = input( "The person is not in the database. "
                                          "Would you like to add the person? (y/n): " )
                 
                 if ( char_answer == 'y' ):
@@ -174,18 +186,33 @@ class RegisterLicense(Application):
 
                 user_input = input("Enter the person's SIN (Enter "
                                    "nothing to cancel): ")
+            
+            elif ( person_licensed ):
+                print( "ERROR: person is licensed. " )
+                user_input = input("Enter the person's SIN (Enter "
+                                   "nothing to cancel): ")
 
+            # Check if user wants to cancel
             if ( len( user_input ) == 0 ):
                 return
 
+            # Check if person exists
             if ( user_input.strip().lower() in rows ):
                 exists = True
+                # Check if person is licensed
+                licences = self.cursor.execute( 
+                    "SELECT * FROM drive_licence WHERE SIN = {}"
+                    .format( user_input.strip().lower() ) ).fetchall()
+                if ( len( licences ) > 0 ):
+                    person_licensed = True
+                else:
+                    person_licensed = False
             else:
                 exists = False
                 
             short_enough = ErrorChecker.check_error(self.metadata[index], user_input)
         
-        self.list_of_inputs[index] = "'{:}'".format(user_input.strip().lower())
+        self.list_of_inputs[index] = user_input.strip().lower()
 
     ###################################
     # GET EXPIRY DATE
@@ -219,7 +246,7 @@ class RegisterLicense(Application):
             d = date_input[0]
             m = date_input[1]
             y = date_input[2]
-            self.list_of_inputs[index] = [ "'{:}/{:}/{:}'".format(d,m,y), "'DD/MM/YYYY'" ] 
+            self.list_of_inputs[index] = "{:}/{:}/{:}".format(d,m,y) 
 
 
     ###################################
@@ -254,7 +281,7 @@ class RegisterLicense(Application):
             d = date_input[0]
             m = date_input[1]
             y = date_input[2]
-            self.list_of_inputs[index] = [ "'{:}/{:}/{:}'".format(d,m,y), "'DD/MM/YYYY'" ] 
+            self.list_of_inputs[index] = "{:}/{:}/{:}".format(d,m,y) 
 
     ###################################
     # ENTER INTO DATABASE
@@ -277,17 +304,8 @@ class RegisterLicense(Application):
         while ( char_answer.strip().lower() not in [ 'y', 'n' ] ):
             char_answer = input( "Would you like to continue? (y/n): " )
 
-        print ( self.list_of_inputs[0] )
-
         if ( char_answer.strip().lower() == 'y' ):
-            # Fix up the dates
-            if ( self.list_of_inputs[5] != None ):
-                self.list_of_inputs[5] = "TO_DATE( {:}, {:} )".format(
-                    self.list_of_inputs[5][0], self.list_of_inputs[5][1] )
-            if ( self.list_of_inputs[4] != None ):
-                self.list_of_inputs[4] = "TO_DATE( {:}, {:} )".format(
-                    self.list_of_inputs[4][0], self.list_of_inputs[4][1] )
-
+            # Fix up photo
             if ( self.list_of_inputs[3] != None ):
                 f_image = open( self.list_of_inputs[3], 'rb' )
                 photo = f_image.read()
@@ -297,11 +315,16 @@ class RegisterLicense(Application):
             else:
                 photo = ""
 
-            insert = """insert into drive_licence(licence_no, photo) 
-values (:licence_no, :photo)"""
+            insert = """insert into drive_licence(licence_no, sin, class, photo, issuing_date, expiring_date) 
+values ( :licence_no, :sin, :class, :photo, to_date(:issuing_date, 'DD/MM/YYYY'), to_date(:expiring_date, 'DD/MM/YYYY') )"""
             self.cursor.execute(
-                insert, {'licence_no':self.list_of_inputs[0], 
-                        'photo':photo } )
+                insert, {'licence_no':self.list_of_inputs[0],
+                         'sin':self.list_of_inputs[1],
+                         'class':self.list_of_inputs[2],
+                         'photo':photo,
+                         'issuing_date':self.list_of_inputs[4],
+                         'expiring_date':self.list_of_inputs[5]
+                         } )
             return True
         else:
             return False
