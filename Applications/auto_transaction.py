@@ -1,4 +1,7 @@
 from application import Application
+from error_checker import ErrorChecker
+from errors import InvalidDateException
+import add_person
 
 class AutoTransaction(Application):
     def start_application(self, c):
@@ -78,7 +81,7 @@ class AutoTransaction(Application):
         if ( len( user_input ) == 0 ):
             return
 
-        # initial check for if violator exists
+        # initial check for if buyer exists
         exists = False
         self.cursor.execute("SELECT SIN FROM people")
         rows = self.cursor.fetchall()
@@ -86,7 +89,7 @@ class AutoTransaction(Application):
         if ( user_input.strip().lower() in rows ):
             exists = True
 
-        # While the input string is too long or the violator does not exist
+        # While the input string is too long or the buyer does not exist
         short_enough = ErrorChecker.check_error(self.metadata[index], user_input)
         while ( not short_enough or not exists):
             if ( not short_enough ):
@@ -100,10 +103,13 @@ class AutoTransaction(Application):
                                          "Would you like to add the person? (y/n): " )
                 
                 if ( char_answer == 'y' ):
-                    # TODO: Call add person
-                    pass
+                    a = add_person.AddPerson()
+                    a.start_application()
+                    self.cursor.execute("SELECT SIN FROM people")
+                    rows = self.cursor.fetchall()
+                    rows = [ row[0].strip().lower() for row in rows ]
 
-                user_input = input("Enter the violator's SIN (Enter "
+                user_input = input("Enter the buyer's SIN (Enter "
                                    "nothing to cancel): ")
 
             if ( len( user_input ) == 0 ):
@@ -117,3 +123,5 @@ class AutoTransaction(Application):
             short_enough = ErrorChecker.check_error(self.metadata[index], user_input)
         
         self.list_of_inputs[index] = "'{:}'".format(user_input.strip().lower())
+
+    

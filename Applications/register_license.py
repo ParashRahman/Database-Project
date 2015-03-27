@@ -166,8 +166,8 @@ class RegisterLicense(Application):
         person_licensed = False
         if ( exists ):
             licences = self.cursor.execute( 
-                "SELECT * FROM drive_licence WHERE SIN = {}"
-                .format( user_input.strip().lower() ) ).fetchall()
+                "SELECT * FROM drive_licence WHERE SIN = '{}'".format( 
+                    user_input.strip().lower() ) ).fetchall()
             if ( len( licences ) > 0 ):
                 person_licensed = True
 
@@ -211,8 +211,8 @@ class RegisterLicense(Application):
                 exists = True
                 # Check if person is licensed
                 licences = self.cursor.execute( 
-                    "SELECT * FROM drive_licence WHERE SIN = {}"
-                    .format( user_input.strip().lower() ) ).fetchall()
+                    "SELECT * FROM drive_licence WHERE SIN = '{}'".format( 
+                        user_input.strip().lower() ) ).fetchall()
                 if ( len( licences ) > 0 ):
                     person_licensed = True
                 else:

@@ -189,6 +189,11 @@ class AddPerson(Application):
     ###################################
     def get_height( self, index ):
         pass
+        """
+        get input from user
+        check with metadata[index]
+        list_of_inputs[index] = result
+        """
 
     ###################################
     # GET WEIGHT
