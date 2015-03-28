@@ -14,7 +14,7 @@ class AutoTransaction(Application):
                         "Date",
                         "Price" ]
 
-        self.cursor.execute( "SELECT * FROM vehicle" )
+        self.cursor.execute( "SELECT * FROM auto_sale" )
         self.metadata = self.cursor.description
 
         self.list_of_inputs = [ None for i in range( 6 )  ]
@@ -297,9 +297,10 @@ class AutoTransaction(Application):
             char_answer = input( "Would you like to continue? (y/n): " )
 
         if ( char_answer.strip().lower() == 'y' ):
-            if ( self.list_of_inputs[2] == None ):
-                self.change_owner( list_of_inputs[2].strip().lower(),
-                                   list_of_inputs[3].strip().lower(),
+            if ( self.list_of_inputs[2] != None
+                 and self.list_of_inputs[3] != None ):
+                self.change_owner( self.list_of_inputs[2].strip().lower(),
+                                   self.list_of_inputs[3].strip().lower(),
                                    'y' )
 
             if ( unfinished ):
@@ -307,30 +308,37 @@ class AutoTransaction(Application):
                     if ( self.list_of_inputs[i] == None ):
                         self.list_of_inputs[i] = "NULL"
 
+            if ( self.list_of_inputs[4] != "NULL" ):
+                self.list_of_inputs[4] = "TO_DATE({:}, {:})".format(
+                    self.list_of_inputs[4][0], self.list_of_inputs[4][1] )
+
             # Enter data into database
             stmnt = "INSERT INTO vehicle VALUES( " + \
-                "{:}, {:}, {:}, {:}, {:} )".format(
+                "{}, {}, {}, {}, {}, {} )".format(
                 self.list_of_inputs[0], 
                 self.list_of_inputs[1], 
                 self.list_of_inputs[2], 
                 self.list_of_inputs[3],
-                self.list_of_inputs[4] )
+                self.list_of_inputs[4],
+                self.list_of_inputs[5] )
 
             print(stmnt)
             self.cursor.execute( stmnt )
 
-
+            return True
         else:
             return False
 
 
     # Helper function for inserting into the database
     def change_owner(self, owner_sin,  vehicle_id, is_primary_owner):
-        statement="delete from owner where vehicle_id='{}'".format(str(vehicle_id))
+        statement="delete from owner where vehicle_id={}".format(str(vehicle_id))
+        print( statement )
         self.cursor.execute(statement)
         value_statement='('+str(owner_sin)+','+str(vehicle_id)+','+"'"+str(is_primary_owner)+"'"+')'
         statement2="insert into owner values"+value_statement
 
+        print( statement2 )
         try:
             self.cursor.execute(statement2)
         except Exception as e:
