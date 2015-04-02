@@ -284,6 +284,18 @@ class AutoTransaction(Application):
     # INSERT INTO DATABASE
     ###################################
     def insert_into_database( self ):
+        if ( self.list_of_inputs[1] and self.list_of_inputs[3] ):
+            statement = "SELECT * FROM owner WHERE owner_id= " \
+                "{} and vehicle_id={}".format( self.list_of_inputs[1],
+                                                   self.list_of_inputs[3] )
+        
+            self.cursor.execute( statement )
+            rows = self.cursor.fetchall()
+            if  ( len( rows ) == 0 ):
+                print("ERROR: The seller you entered is "
+                      "not the owner of the vehicle")
+                return False
+
         unfinished = False
         for inp in self.list_of_inputs:
             if inp == None:
@@ -313,7 +325,7 @@ class AutoTransaction(Application):
                     self.list_of_inputs[4][0], self.list_of_inputs[4][1] )
 
             # Enter data into database
-            stmnt = "INSERT INTO vehicle VALUES( " + \
+            stmnt = "INSERT INTO auto_sale VALUES( " + \
                 "{}, {}, {}, {}, {}, {} )".format(
                 self.list_of_inputs[0], 
                 self.list_of_inputs[1], 
@@ -322,7 +334,6 @@ class AutoTransaction(Application):
                 self.list_of_inputs[4],
                 self.list_of_inputs[5] )
 
-            print(stmnt)
             self.cursor.execute( stmnt )
 
             return True
@@ -333,14 +344,12 @@ class AutoTransaction(Application):
     # Helper function for inserting into the database
     def change_owner(self, owner_sin,  vehicle_id, is_primary_owner):
         statement="delete from owner where vehicle_id={}".format(str(vehicle_id))
-        print( statement )
         self.cursor.execute(statement)
         value_statement='('+str(owner_sin)+','+str(vehicle_id)+','+"'"+str(is_primary_owner)+"'"+')'
         statement2="insert into owner values"+value_statement
 
-        print( statement2 )
         try:
             self.cursor.execute(statement2)
         except Exception as e:
             print("Error! cannot add an owner record")
-        return 
+        return
