@@ -1,0 +1,4 @@
+# This class is an application that
+# allows the user to search the database
+class SearchDatabase:
+    pass
