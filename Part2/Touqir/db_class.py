@@ -1,8 +1,10 @@
-#Python 3 code!!!!!
+#Python 2.7 code!!!!!
 
 
-import bsddb3 as bsddb
+import bsddb
 from bisect import bisect_left
+from timeit import Timer
+
 
 Database="cstudents.db"
 
@@ -14,7 +16,7 @@ db=bsddb.hashopen(Database, 'c') #creates a hash db in file "cstudents.db"
 
 
 #Below is the code for inserting
-print(type(db))
+print "type(db))"
 
 sid="123"
 Name="James"
@@ -27,11 +29,11 @@ sid="123"
 if db.has_key(sid):
 	
 	name=db[sid]
-	print ("name:{} corresponds to sid:{}".format(name,sid))
+	print "name:{} corresponds to sid:{}".format(name,sid)
 
 else:
 
-	print("sid:{} doesnt exist".format(sid))
+	print "sid:{} doesnt exist".format(sid)
 
 #For deleting a key/data pair:
 
@@ -49,9 +51,10 @@ class DB:
 
 	parse_letter=":::"
 
-	def __init__(self, db_obj):
+	def __init__(self, db_obj,db_address):
 
 		self.db=db_obj
+		self.db_address=db_address
 
 		return
 
@@ -156,8 +159,16 @@ class DB:
 
 		return key_list
 
-	def insert(self):
+	
+	#Takes a records list which contains a tuple eg, (key,value).
+	#Stores the values against the corresponding key
+	def insert(self,records):
 
+		for key,value in records:
+
+			if self.db.has_key(key)==False:
+
+				self.db[key]=value
 
 
 		return
@@ -175,3 +186,101 @@ class DB:
 			found=True
 
 		return [position,found]
+
+
+
+	#For deleting a database from a harddrive
+	def destroy(self):
+
+		bsddb.os.remove(self.db_address)
+
+	return
+
+	#Should be called when saving into a database, aka syncing
+	def save(self):
+
+		self.db.sync()
+
+	return
+
+	#Should be called when closing a database
+	def close(self):
+
+		self.db.close()
+
+	return
+
+	#destructor
+	def __del__(self):
+
+		self.close()
+
+	return
+
+
+
+#Inputs:
+	#methods=[method 1,method 2,.....,method n]
+	#names=[name of method 1, name of method 2, .......n]
+	#no_times=[# of times to execute method 1, ...................... n]
+#Outputs the time needed to execute each methods
+def timer(functions,names,no_times):
+
+	timer_objs=[] #a list of Timer object
+	execution_time=[] #a list of execution time corresponding to each methods
+
+	for function in functions:
+		
+		timer_objs.append(Timer(function))
+
+	for index in range(len(no_times)):
+
+		repeat_number=no_times[index] #repeat_number represents number of times to run the function
+
+		execution_time.append( timer_objs[index](repeat_number) )
+
+		print names[index]+" took "+execution_time[index]+" seconds to run "+repeat_number+" times"
+
+	return
+
+
+
+
+
+class B_tree(DB):
+
+
+
+	def __init__(self,db_address):
+
+		# Database="B_tree.db"
+
+		# self.address=db.address #contains address to db file's location
+
+		self.db=bsddb.hashopen(self.address, 'c')		
+
+		DB.__init__(self, self.db,db_address)
+
+		return
+
+
+
+
+class Hash_table(DB):
+
+
+
+	def __init__(self,db_address):
+
+		# Database="Hash_table.db"
+
+		# self.address=db.address #contains address to db file's location
+
+		self.db=bsddb.btopen(self.address, 'c')		
+
+		DB.__init__(self, self.db,db_address)
+
+		return
+
+
+
