@@ -5,39 +5,71 @@ NUMBER_OF_PAIRS = 1000
 
 # Returns the database that main will 
 # be the keeper of
+# database_obj is a list containing the objects of the databases. [B_tree obj, Hashtable obj, Index_file obj]
+
 class ChoosePopulate:
+
+    def __init__(self, database_obj):
+
+        self.Hashtable_obj=database_obj[1]
+        self.B_tree_obj=database_obj[0]
+        self.Index_file_obj=database_obj[2]
+
+    def generate_data(self):
+        # Retrieve the key value pairs to be injected
+        # r = Random()
+        # self.vals =  r.get_keys_and_values(NUMBER_OF_PAIRS) 
+
+        self.vals[("1","a"),("2","b"),("3","c"),("75","d"),("7","e"),("432","f"),("1","a"),("1","a"),("1","a"),("1","a"),("1","a"),("1","a"),("1","a"),("1","a")]
+
     def start_application(self):
 
-        # Retrieve the key value pairs to be injected
-        r = Random()
-        vals =  r.get_keys_and_values(NUMBER_OF_PAIRS) 
 
         # Print the options for the user
         self.print_options()
         
         # Get user input option
-        choice = IOHelpers.get_option( 3 )
+        # choice = IOHelpers.get_option( 3 )
+
+        choice=int(input())
 
         # Instantiate the proper database type
         database = None
         if ( choice == 1 ):
             # database = B-Tree
-            pass
+            if self.B_tree_obj!=None:
+            
+                self.B_tree_obj.insert(self.vals)
+
+
         elif ( choice == 2 ):
             # database = Hash Table
-            pass
+            if self.Hashtable_obj!=None:
+                
+                self.Hashtable_obj.insert(self.vals)
+
+
         elif ( choice == 3 ):
             # database = Index File
-            pass
+            if self.Index_file_obj!=None:
+
+                self.Index_file_obj.insert(self.vals)
+
+        elif (choice == 4 ):
+
+            exit=True
+            return exit
+
         
         # Inject values into database
         # database.insert_values( vals )
-
-        return database
+        exit=False
+        return exit
 
     # Helper function to print options
     def print_options( self ):
-        print ( "What kind of database would you like to try?" )        
-        print ( "[1] B-Tree" )
-        print ( "[2] Hash Table" )
-        print ( "[3] Index File" )
+        print  "What kind of database would you like to try?"         
+        print  "[1] B-Tree" 
+        print  "[2] Hash Table" 
+        print  "[3] Index File" 
+        print  "[4] For Exit"

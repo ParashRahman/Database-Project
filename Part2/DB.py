@@ -1,5 +1,9 @@
 # This is the parent class for searching, inserting records. Child classes will have to call the DB class's constructor and pass onto it the initialized db_object (B_tree,hashtable,etc)
+import bsddb
+
+
 class DB:
+
     parse_letter=":::"
 
     def __init__(self, db_obj, db_address):
@@ -97,13 +101,15 @@ class DB:
                 self.db[key]=value
 
 
-        return
+        return True
 
 
 
     #Returns a list with variables telling you wether key is found in the list and if found tells you position.
     #Otherwise it gives out the position of the immediate latter key and also tells you that original key was not found using "found" variable.
-    def binary_search(self,key_list,key,low=0,high=len(key_list)):
+    def binary_search(self,key_list,key,low=0,high=0):
+
+        high=len(key_list)
         found=False #Flag which tells if key is found or not
         position = bisect_left(key_list,key,low,high)
         
@@ -118,23 +124,23 @@ class DB:
     def destroy(self):
         bsddb.os.remove(self.db_address)
 
-    return
+        return
 
     #Should be called when saving into a database, aka syncing
     def save(self):
         self.db.sync()
 
-    return
+        return
 
     #Should be called when closing a database
     def close(self):
         self.db.close()
 
-    return
+        return
 
     #destructor
     def __del__(self):
         self.close()
 
-    return
+        return
 
