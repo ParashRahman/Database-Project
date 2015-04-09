@@ -17,13 +17,13 @@ class DB:
 
 
 
-    #Retrieves records based on key search
+    # Retrieves records based on key search
     def retrieve_using_key(self,keys):
 
-        records=[] #list containing tuples of key-value pair
+        records=[] # list containing tuples of key-value pair
 
-        #Iterates through all the keys and then sees if the key is present in db. 
-        #If a key is present, then the record corresponding to the key is appended to record.
+        # Iterates through all the keys and then sees if the key is present in db. 
+        # If a key is present, then the record corresponding to the key is appended to record.
         
         for key in keys:
             if self.db.has_key(key):
@@ -100,7 +100,6 @@ class DB:
             if self.db.has_key(key)==False:
                 self.db[key]=value
 
-
         return True
 
 
@@ -118,29 +117,19 @@ class DB:
 
         return [position,found]
 
-
-
-    #For deleting a database from a harddrive
+    # For deleting a database from a harddrive
     def destroy(self):
         bsddb.os.remove(self.db_address)
 
-        return
-
-    #Should be called when saving into a database, aka syncing
+    # Should be called when saving into a database, aka syncing
     def save(self):
         self.db.sync()
 
-        return
-
-    #Should be called when closing a database
+    # Should be called when closing a database
     def close(self):
         self.db.close()
 
-        return
-
-    #destructor
+    # destructor
     def __del__(self):
         self.close()
-
-        return
 
