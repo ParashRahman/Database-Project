@@ -14,7 +14,7 @@ class ChoosePopulate:
         self.Index_file_obj=database_obj[2]
 
     def generate_data(self, quantity):
-        Retrieve the key value pairs to be injected
+        #Retrieve the key value pairs to be injected
         r = Random()
         self.vals =  r.get_keys_and_values(quantity) 
 

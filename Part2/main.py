@@ -43,3 +43,7 @@ class Main:
         print( "[4] Retrieve records within a key range" )
         print( "[5] Destroy the database" )
         print( "[6] Quit" )
+
+if __name__ == '__main__':
+    x = Main()
+    x.start_application()
