@@ -14,9 +14,7 @@ class HashTable(DB):
         return
 
 
-    def __del__(self):
-		
-		self.close()
-
-		return
+    def __del__(self):	
+        self.close()
+        return
 
