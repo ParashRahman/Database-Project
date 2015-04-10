@@ -7,9 +7,9 @@ class DB:
 
     def __init__(self, db_obj, db_address):
         self.db = db_obj
-        self.db_address=db_address
+        self.db_address = db_address
 
-    def record_parser(self,records):
+    def record_parser( self, records ):
         return records.split(parse_letter)
 
     # Retrieves records based on key search
@@ -124,4 +124,4 @@ class DB:
     # destructor
     def __del__(self):
         self.close()
-
+        self.save()
