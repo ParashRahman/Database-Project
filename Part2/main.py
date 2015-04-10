@@ -50,6 +50,11 @@ class Main:
                     self.database.destroy()
                     self.database = None
             elif ( choice == 6 ):
+                if ( self.database != None ):
+                    self.database.destroy()
+                    self.database = None
+                f = open('answers','w')
+                f.close()
                 return
 
     def print_options( self ):
