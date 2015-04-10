@@ -22,6 +22,8 @@ class IndexFile(DB):
         records = []
 
         for data_value in data_values:
-            for  count in xrange( size_db ):
-                if count == 0:
-                    current_record = 
+            records.extend(inverse_index[data_value])
+
+        return records
+
+    
