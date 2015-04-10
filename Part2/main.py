@@ -1,16 +1,18 @@
 from choose_populate import ChoosePopulate
 from io_helpers import IOHelpers
 from search_database import SearchDatabase
+import os
 
 class Main: 
     def __init__(self):
         self.database_location = "tmp/my_db/tianzhi_db/"
-
+        if not os.path.exists(self.database_location):
+            os.makedirs(self.database_location)
         self.database = None
 
     def start_application(self):
         # print options for the user
-        while forever:
+        while True:
 
             self.print_options()
 
