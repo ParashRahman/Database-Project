@@ -44,7 +44,6 @@ class DB:
     # TO BE OVERIDDEN BY SUBCLASSES
     def retrieve_range(self,low_key,high_key):
         pass
-
     
     #Takes a records list which contains a tuple eg, (key,value).
     #Stores the values against the corresponding key
@@ -52,6 +51,9 @@ class DB:
         for key,value in records:
             if self.db.has_key(key) == False:
                 self.db[key] = value
+
+        
+        self.save()
 
         return True
 
@@ -78,5 +80,6 @@ class DB:
         self.db.sync()
 
     # Should be called when closing a database
+    # Closing means flushing to disk and stopping access
     def close(self):
         self.db.close()

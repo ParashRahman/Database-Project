@@ -1,9 +1,10 @@
 from rand import Random
-from datetime import datetime
+import time
 from b_tree import BTree
 from hash_table import HashTable
 from index_file import IndexFile
 
+current_milli_time = lambda: time.time() * 1000000
 
 def are_equal ( r1, r2, r3 ):
     if ( set(r1) == set(r2) ):
@@ -21,7 +22,7 @@ h.destroy()
 i.destroy()
 
 r = Random()
-data = r.get_keys_and_values( 500 )
+data = r.get_keys_and_values( 1000 )
 
 to_key_search = [data[250][0]]
 to_data_search = [data[250][1]]
@@ -33,39 +34,39 @@ i.insert( data )
 
 print "Key Search" 
 print "b"
-start = datetime.now()
+start = current_milli_time() 
 result1 = b.retrieve_using_key( to_key_search )
-end = datetime.now()
+end = current_milli_time() 
 print (end - start)
 print "h"
-start = datetime.now()
+start = current_milli_time() 
 result2 = h.retrieve_using_key( to_key_search )
-end = datetime.now()
+end = current_milli_time() 
 print (end - start)
 print "i"
-start = datetime.now()
+start = current_milli_time() 
 result3 = i.retrieve_using_key( to_key_search )
-end = datetime.now()
+end = current_milli_time() 
 print (end - start)
-are_equal ( result1, result2, result3 )
+are_equal ( result1, result2, result3 ) 
 
 print
 
 print "Value Search"
 print "b"
-start = datetime.now()
+start = current_milli_time() 
 result1 = b.retrieve_using_data_values( to_data_search )
-end = datetime.now()
+end = current_milli_time() 
 print (end - start)
 print "h"
-start = datetime.now()
+start = current_milli_time() 
 result2 = h.retrieve_using_data_values( to_data_search )
-end = datetime.now()
+end = current_milli_time() 
 print (end - start)
 print "i"
-start = datetime.now()
+start = current_milli_time() 
 result3 = i.retrieve_using_data_values( to_data_search )
-end = datetime.now()
+end = current_milli_time() 
 print (end - start)
 are_equal ( result1, result2, result3 )
 
@@ -73,18 +74,18 @@ print
 
 print "Range Search"
 print "b"
-start = datetime.now()
+start = current_milli_time() 
 result1 = b.retrieve_range( to_range_search[0], to_range_search[1] )
-end = datetime.now()
+end = current_milli_time() 
 print( end - start )
 print "h"
-start = datetime.now()
+start = current_milli_time() 
 result2 = h.retrieve_range( to_range_search[0], to_range_search[1] )
-end = datetime.now()
+end = current_milli_time() 
 print( end - start )
 print "i"
-start = datetime.now()
+start = current_milli_time() 
 result3 = i.retrieve_range( to_range_search[0], to_range_search[1] )
-end = datetime.now()
+end = current_milli_time() 
 print( end - start )
 are_equal ( result1, result2, result3 )
