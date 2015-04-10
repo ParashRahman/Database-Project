@@ -73,6 +73,7 @@ class DB:
 
     # For deleting a database from a harddrive
     def destroy(self):
+        self.close()
         bsddb.os.remove(self.db_address)
 
     # Should be called when saving into a database, aka syncing

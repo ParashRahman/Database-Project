@@ -1,7 +1,6 @@
 from choose_populate import ChoosePopulate
 from io_helpers import IOHelpers
 from search_database import SearchDatabase
-forever = 1
 
 class Main: 
     def __init__(self):
@@ -24,19 +23,30 @@ class Main:
                 self.database = c.start_application(self.database)
             elif ( choice == 2 ):
                 # key search of database
-                s = SearchDatabase(self.database, "key")
-                s.start_application()
+                if ( self.database != None ):
+                    s = SearchDatabase(self.database, "key")
+                    s.start_application()
+                else:
+                    print ( "You have not set a database" )
             elif ( choice == 3 ):
                 # data search of database
-                s = SearchDatabase(self.database, "data")
-                s.start_application()
+                if ( self.database != None ):
+                    s = SearchDatabase(self.database, "data")
+                    s.start_application()
+                else:
+                    print ( "You have not set a database" )
             elif ( choice == 4 ):
                 # range search of database
-                s = SearchDatabase(self.database, "range")
-                s.start_application()
+                if ( self.database != None ):
+                    s = SearchDatabase(self.database, "range")
+                    s.start_application()
+                else:
+                    print ( "You have not set a database" )
             elif ( choice == 5 ):
                 # destroy the database
-                pass
+                if ( self.database != None ):
+                    self.database.destroy()
+                    self.database = None
             elif ( choice == 6 ):
                 return
 
