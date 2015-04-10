@@ -1,5 +1,4 @@
 import bsddb
-from startup import *
 from b_tree import BTree
 from hash_table import HashTable
 
@@ -11,7 +10,7 @@ class IndexFile(BTree):
         self.inverse_index = bsddb.hashopen(index_address, 'c')
         self.index_address = index_address
         self.db =  bsddb.btopen(db_address, 'c')
-        DB.__init__(self, self.db, db_address)
+        BTree.__init__(self, db_address)
 
     # OVERRIDED
     def insert(self, records):

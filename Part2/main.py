@@ -5,7 +5,8 @@ forever = 1
 
 class Main: 
     def __init__(self):
-        self.database_location = "/tmp/my_db/tianzhi_db"
+        self.database_location = "tmp/my_db/tianzhi_db/"
+
         self.database = None
 
     def start_application(self):

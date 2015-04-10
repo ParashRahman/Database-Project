@@ -2,6 +2,7 @@ from rand import Random
 from io_helpers import IOHelpers
 from b_tree import BTree
 from hash_table import HashTable
+from index_file import IndexFile
 
 # Returns the database that main will 
 # be the keeper of
@@ -11,6 +12,10 @@ class ChoosePopulate:
 
     def __init__(self, database_loc):
         self.database_location = database_loc
+        self.b_tree_location = self.database_location + "b_tree.db"
+        self.hash_table_location = self.database_location + "hash_table.db"
+        self.index_file_location_1 = self.database_location + "index_file_bt.db"
+        self.index_file_location_2 = self.database_location + "index_file_ii.db"
 
     def generate_data(self, quantity):
 
@@ -36,35 +41,33 @@ class ChoosePopulate:
             # database = B-Tree
             if database != None:
                 database.destroy()
-                database = BTree(self.database_location)
-                database.insert(self.vals)
-                return database
-            else:
-                database = BTree(self.database_location)
-                database.insert(self.vals)
-                return database
+
+            database = BTree(self.b_tree_location)
+            database.insert(self.vals)
+            return database
+ 
 
         elif ( choice == 2 ):
             # database = Hash Table
             if database != None:
                 database.destroy()
-                database = HashTable(self.database_location)
-                database.insert(self.vals)
-                return database
-            else:
-                database = HashTable(self.database_location)
-                database.insert(self.vals)
-                return database
 
+            database = HashTable(self.hash_table_location)
+            database.insert(self.vals)
+            return database
+            
         elif ( choice == 3 ):
             # database = Index File
-            print "Exiting"
+            if database != None:
+                database.destroy()
 
+            database = IndexFile(self.index_file_location_1,
+                                 self.index_file_location_2)
+            database.insert(self.vals)
+            return database
+            
         elif (choice == 4 ):
             print "Exiting"
-
-
-        
 
 
     # Helper function to print options

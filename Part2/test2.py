@@ -50,6 +50,10 @@ end = current_milli_time()
 print (end - start)
 are_equal ( result1, result2, result3 ) 
 
+print result1
+print result2
+print result3
+
 print
 
 print "Value Search"
