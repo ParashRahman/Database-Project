@@ -1,5 +1,7 @@
 from rand import Random
 from io_helpers import IOHelpers
+from b_tree import BTree
+from hash_table import HashTable
 
 # Returns the database that main will 
 # be the keeper of
@@ -7,53 +9,61 @@ from io_helpers import IOHelpers
 
 class ChoosePopulate:
 
-    def __init__(self, database_obj):
-
-        self.Hashtable_obj=database_obj[1]
-        self.B_tree_obj=database_obj[0]
-        self.Index_file_obj=database_obj[2]
+    def __init__(self, database_loc):
+        self.database_location = database_loc
 
     def generate_data(self, quantity):
         #Retrieve the key value pairs to be injected
         r = Random()
         self.vals =  r.get_keys_and_values(quantity) 
 
-        self.vals[("1","a"),("2","b"),("3","c"),("75","d"),("7","e"),("432","f"),("1","a"),("1","a"),("1","a"),("1","a"),("1","a"),("1","a"),("1","a"),("1","a")]
+        #self.vals[("1","a"),("2","b"),("3","c"),("75","d"),("7","e"),("432","f"),("1","a"),("1","a"),("1","a"),("1","a"),("1","a"),("1","a"),("1","a"),("1","a")]
 
     # return True if option chosen
     # return False if exited
-    def start_application(self):
+    def start_application(self, database):
         # Print the options for the user
         self.print_options()
         
         # Get user input option
-        # choice = IOHelpers.get_option( 3 )
+        choice = IOHelpers.get_input( 3 )
 
-        choice=int(input())
+        self.generate_data(100)
 
-        # Instantiate the proper database type
-        database = None
         if ( choice == 1 ):
             # database = B-Tree
-            if self.B_tree_obj != None:
-                self.B_tree_obj.insert(self.vals)
+            if database != None:
+                database.destroy()
+                database = BTree(self.database_location)
+                database.insert(self.vals)
+                return database
+            else:
+                database = BTree(self.database_location)
+                database.insert(self.vals)
+                return database
 
         elif ( choice == 2 ):
             # database = Hash Table
-            if self.Hashtable_obj != None:
-                self.Hashtable_obj.insert(self.vals)
+            if database != None:
+                database.destroy()
+                database = HashTable(self.database_location)
+                database.insert(self.vals)
+                return database
+            else:
+                database = HashTable(self.database_location)
+                database.insert(self.vals)
+                return database
 
         elif ( choice == 3 ):
             # database = Index File
-            if self.Index_file_obj != None:
-                self.Index_file_obj.insert(self.vals)
+            print "Exiting"
 
         elif (choice == 4 ):
-            return False
+            print "Exiting"
+
+
         
-        # Inject values into database
-        # database.insert_values( vals )
-        return True
+
 
     # Helper function to print options
     def print_options( self ):
@@ -61,4 +71,4 @@ class ChoosePopulate:
         print  "[1] B-Tree" 
         print  "[2] Hash Table" 
         print  "[3] Index File" 
-        print  "[4] For Exit"
+        print  "[4] Exit"

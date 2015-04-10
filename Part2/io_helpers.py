@@ -7,7 +7,7 @@ class IOHelpers:
                 user_input = int ( user_input )
                 if ( user_input >= min_option and 
                      user_input <= max_option ):
-                    break
+                    return user_input
                 else:
                     raise ValueError
             except ValueError:
