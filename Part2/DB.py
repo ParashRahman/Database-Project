@@ -15,132 +15,35 @@ class DB:
     # Retrieves records based on key search
     def retrieve_using_key(self,keys):
         records=[] # list containing tuples of key-value pair
-
-        # Iterates through all the keys and then sees if the key is present in db. 
-        # If a key is present, then the record corresponding to the key is appended to record.
         
         for key in keys:
-            if self.db.has_key(key):
+            try:
                 records.append((key,self.db[key]))
+            except KeyError:
+                pass
 
         return records
 
-    #Retrieves records containing the input data_values fed
+    # Retrieves records containing the input data_values fed
     def retrieve_using_data_values(self, data_values):
-        size_db=len(self.db) #Number of records in db
-        records=[] #Will return this list containing all the records that has the given input data_values
+        # return list of keys and values
+        records=[] 
 
-        #The loops below searches through the db dictionary to compare the records with the given input data_values
-
-
-        #Iterates through given input data_values
-        for data_value in data_values:
-
-            #Iterates through the all the records in the db
-            for count in xrange(size_db):
-                if count==0:
-                    current_record=self.db.first() #current record points to the record being currently compared with the data_value
-
-                    #If the current record matches the current data_value, then that record is appended in the record list
-                    if current_record[1]==data_value:   
-                        records.append(current_record)
-
-                else:
-                    current_record=self.db.next() #current record points to the record being currently compared with the data_value
-
-                    #If the current record matches the current data_value, then that record is appended in the record list                                      
-                    if current_record[1]==data_value:           
-                        records.append(current_record)
-
-        return records
-
-
-    # #Retrieves records based on range search
-    # def retrieve_range(self,low_key,high_key):
-    #     #Gets the list of db's keys which is sorted and then finds out the position of the high and low key in that list.
-    #     #Once found, it uses a loop to extract the records corresponding to the keys in that high-low key range.
+        current = self.db.first()
         
-    #     key_list=self.db.keys()
-
-    #     records=[]
-
-    #     #Finding out the position of the low key in key_list
-    #     [low_pos,low_found]=binary_search(key_list,low_key)
-        
-    #     #Finding out the position of the high key in key_list
-    #     [high_pos,high_found]=binary_search=(key_list,high_key)
-
-    #     if high_found==False:
-
-    #         high_pos=high_pos-1
-
-    #     index=low_pos #setting loop index
-        
-    #     while True:
-    #         key=key_list[index]
-    #         records.append(self.db[key])
-            
-    #         if index==high_key:
-    #             break
-    #         index+=1
-
-    #     return key_list
-
-
-
-    def retrieve_range_btree(self,low_key,high_key):
-
-        records=[]
-
-        last_record=self.db.last()
-
-        records.append(self.db.set_location(low_key))
-
-        reached_end=False
-
-        while True:
-
-            if records[-1]!=last_record:
-                
-                next_record=self.db.next()
-
-            else:
-
+        while( True ):
+            if ( current[1] in data_values ):
+                records.append( current )
+            try:
+                current = self.db.next()
+            except KeyError:
                 break
 
-            if next_record[0]<=high_key:
-
-                records.append(next_record)
-
-            else:
-
-                break
-
-
         return records
 
-
-    def retrieve_range_hash(self, low_key, high_key):
-
-        records=[]
-
-        keys_in_range=[]
-
-        all_keys=self.db.keys()
-
-        for key in all_keys:
-
-            if key>=low_key and key<=high_key:
-
-                keys_in_range.append(key)
-
-        for key in keys_in_range:
-
-            records.append((key,self.db[key]))
-
-        return records
-
-
+    # TO BE OVERIDDEN BY SUBCLASSES
+    def retrieve_range(self,low_key,high_key):
+        pass
 
     
     #Takes a records list which contains a tuple eg, (key,value).
@@ -177,8 +80,3 @@ class DB:
     # Should be called when closing a database
     def close(self):
         self.db.close()
-
-    # destructor
-    def __del__(self):
-        self.close()
-        self.save()

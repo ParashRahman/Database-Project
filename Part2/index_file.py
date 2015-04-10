@@ -1,7 +1,8 @@
 import bsddb
 from startup import *
+from b_tree import BTree
 
-class IndexFile(DB):
+class IndexFile(BTree):
 
     def __init__(self, db_address, index_address):
 
@@ -26,18 +27,15 @@ class IndexFile(DB):
         records = []
 
         for data_value in data_values:
-
             try:
                 records.extend(self.inverse_index[data_value])
             except KeyError as e:
                 # print e
                 pass
 
+        # format return as key value pairs
+        for i in xrange( len( records ) ):
+            records[i] = (records[i], data_values[0])
+
         return records
 
-
-    def __del__(self):
-        self.close()
-        # self.save()
-
-    

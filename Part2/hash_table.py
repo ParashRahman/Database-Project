@@ -13,8 +13,17 @@ class HashTable(DB):
 
         return
 
+    def retrieve_range( self, low_key, high_key ):
 
-    def __del__(self):	
-        self.close()
-        return
+        ret = []
+        current = self.db.first()
 
+        while ( True ):
+            if ( low_key <= current[0] and high_key >= current[0] ):
+                ret.append( current )
+            try:
+                current = self.db.next()
+            except KeyError:
+                break
+
+        return ret
