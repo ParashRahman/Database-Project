@@ -11,30 +11,33 @@ class SearchDatabase:
     def start_application( self ):
         results = None
 
+        # Search by index
         if ( self.search_type == "key" ):
             print "Enter a key to search for: "
             user_input = str(raw_input()).strip()
 
             start_time = timer.current_micro_time()
+            # actual operation
             results = self.database.retrieve_using_key( [user_input] )
             end_time = timer.current_micro_time()
             self.print_results( results )
-            self.print_anwser_file(results)
+            self.print_answers_file(results)
             self.print_time( end_time - start_time )
 
-
+        # Search by data
         elif ( self.search_type == "data" ):
             print "Enter data to search for: "
             user_input = str(raw_input()).strip()
 
             start_time = timer.current_micro_time()
+            # actual operation
             results = self.database.retrieve_using_data_values( [user_input] )
             end_time = timer.current_micro_time()
             self.print_results( results )
             self.print_answers_file(results)
             self.print_time( end_time - start_time )
 
-
+        # Range search
         elif ( self.search_type == "range" ):
             print "Enter lower bound of search: "
             user_input_lower = raw_input().strip()
@@ -43,20 +46,21 @@ class SearchDatabase:
 
             if ( user_input_lower <= user_input_upper ):
                 start_time = timer.current_micro_time()
+                # actual operation
                 results = self.database.retrieve_range( user_input_lower,
                                                         user_input_upper )
                 end_time = timer.current_micro_time()
 
                 self.print_results( results )
-                self.print_answers_file(results)
+                self.print_answers_file(results) 
                 self.print_time( end_time - start_time )
             else:
-                print "Lower bound must be less than upper bound" 
+                print "NOTICE: Lower bound must be less than upper bound" 
                 return
 
         print "Returning to main menu"
 
-
+    # Helper to print results of search
     def print_results( self, results ):
         print "RESULTS"
         if ( len( results ) == 0 ):
@@ -77,11 +81,13 @@ class SearchDatabase:
         f.write('hi there\n')
         f.close()
     
+    # Helper to print to print to answers document
     def print_answers_file(self, results):
         f = open('answers','a')
         for res in results:
             f.write(res[0]+'\n'+res[1]+'\n'+'\n')
         
-
+    # Helper to print the microseconds that it takes
+    # to execute a search
     def print_time( self, microseconds ):
         print "The query took " + str(microseconds) + " microseconds."

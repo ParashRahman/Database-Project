@@ -1,3 +1,8 @@
+######################
+# Random class helps generate 
+# the random key value pairs
+######################
+
 import random
 
 SEED = 10000

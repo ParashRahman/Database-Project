@@ -1,3 +1,9 @@
+######################
+# IndexFile: 
+# * Extends and utilizes BTree functions
+# * Has a hash table that acts as an inverse index
+######################
+
 import bsddb
 from b_tree import BTree
 from hash_table import HashTable

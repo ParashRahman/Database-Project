@@ -1,3 +1,10 @@
+#################################
+# This file was used to perform the experiments
+# 
+# Tests consist of timing each db type for 
+# each type of search
+################################
+
 from rand import Random
 import time
 from b_tree import BTree

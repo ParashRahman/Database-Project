@@ -6,8 +6,12 @@ import os
 class Main: 
     def __init__(self, initial_database):
         self.database_location = "tmp/my_db/tianzhi_db/"
+
+        # makes the directory for the database files
         if not os.path.exists(self.database_location):
             os.makedirs(self.database_location)
+
+        # database kept track of
         self.database = None
 
         # Initial getting data for database
@@ -44,27 +48,28 @@ class Main:
                     s = SearchDatabase(self.database, "key")
                     s.start_application()
                 else:
-                    print "You have not set a database" 
+                    print "NOTICE: You have not set a database" 
             elif ( choice == 3 ):
                 # data search of database
                 if ( self.database != None ):
                     s = SearchDatabase(self.database, "data")
                     s.start_application()
                 else:
-                    print "You have not set a database" 
+                    print "NOTICE: You have not set a database" 
             elif ( choice == 4 ):
                 # range search of database
                 if ( self.database != None ):
                     s = SearchDatabase(self.database, "range")
                     s.start_application()
                 else:
-                    print "You have not set a database"
+                    print "NOTICE: You have not set a database"
             elif ( choice == 5 ):
                 # destroy the database
                 if ( self.database != None ):
                     self.database.destroy()
                     self.database = None
             elif ( choice == 6 ):
+                # exit application
                 if ( self.database != None ):
                     self.database.destroy()
                     self.database = None
@@ -72,6 +77,7 @@ class Main:
                 f.close()
                 return
 
+    # Helper to print the user options
     def print_options( self ):
         print( "Choose an option:" )
         print( "[1] Create and populate a database" )

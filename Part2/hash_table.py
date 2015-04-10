@@ -13,6 +13,8 @@ class HashTable(DB):
 
         return
 
+    # Traverses entire database and checks if key
+    # is within constraints. 
     def retrieve_range( self, low_key, high_key ):
 
         ret = []
