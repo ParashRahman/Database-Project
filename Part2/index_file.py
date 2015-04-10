@@ -1,8 +1,11 @@
 import bsddb
 
 class IndexFile(DB):
-
+    
     def __init__(self, db_address):
+        raise TypeError("Do not use this constructor, son")
+
+    def __init__(self, db_address, index_address):
         self.inverse_index = {}
         self.db =  bsddb.btopen(db_address, 'c')
 
