@@ -1,4 +1,5 @@
 from io_helpers import IOHelpers
+import timer
 
 # This class is an application that
 # allows the user to search the database
@@ -13,27 +14,45 @@ class SearchDatabase:
         if ( self.search_type == "key" ):
             print "Enter a key to search for: "
             user_input = raw_input()
+
+            start_time = timer.current_micro_time()
             results = self.database.retrieve_using_key( [user_input] )
+            end_time = timer.current_micro_time()
+            self.print_results( results )
+            self.print_time( end_time - start_time )
+
 
         elif ( self.search_type == "data" ):
             print "Enter data to search for: "
             user_input = raw_input()
+
+            start_time = timer.current_micro_time()
             results = self.database.retrieve_using_data_values( [user_input] )
+            end_time = timer.current_micro_time()
+            self.print_results( results )
+            self.print_time( end_time - start_time )
+
 
         elif ( self.search_type == "range" ):
             print "Enter lower bound of search: "
             user_input_lower = raw_input()
             print "Enter upper bound of search: "
             user_input_upper = raw_input()
+
             if ( user_input_lower <= user_input_upper ):
+                start_time = timer.current_micro_time()
                 results = self.database.retrieve_range( user_input_lower,
                                                         user_input_upper )
-            else:
-                print( "Lower bound must be less than upper bound" )
+                end_time = timer.current_micro_time()
 
-        self.print_results( results )
+                self.print_results( results )
+                self.print_time( end_time - start_time )
+            else:
+                print "Lower bound must be less than upper bound" 
+                return
+
         print "Returning to main menu"
-        return results
+
 
     def print_results( self, results ):
         print "RESULTS"
@@ -47,4 +66,5 @@ class SearchDatabase:
             for res in results:
                 print( res[0] )
 
-        
+    def print_time( self, microseconds ):
+        print "The query took " + str(microseconds) + " microseconds."

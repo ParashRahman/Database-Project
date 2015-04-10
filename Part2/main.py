@@ -29,21 +29,21 @@ class Main:
                     s = SearchDatabase(self.database, "key")
                     s.start_application()
                 else:
-                    print ( "You have not set a database" )
+                    print "You have not set a database" 
             elif ( choice == 3 ):
                 # data search of database
                 if ( self.database != None ):
                     s = SearchDatabase(self.database, "data")
                     s.start_application()
                 else:
-                    print ( "You have not set a database" )
+                    print "You have not set a database" 
             elif ( choice == 4 ):
                 # range search of database
                 if ( self.database != None ):
                     s = SearchDatabase(self.database, "range")
                     s.start_application()
                 else:
-                    print ( "You have not set a database" )
+                    print "You have not set a database"
             elif ( choice == 5 ):
                 # destroy the database
                 if ( self.database != None ):

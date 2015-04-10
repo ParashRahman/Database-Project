@@ -17,12 +17,8 @@ b = BTree("1.db")
 h = HashTable("2.db")
 i = IndexFile("3.db", "4.db")
 
-b.destroy()
-h.destroy()
-i.destroy()
-
 r = Random()
-data = r.get_keys_and_values( 1000 )
+data = r.get_keys_and_values( 100000 )
 
 to_key_search = [data[250][0]]
 to_data_search = [data[250][1]]
@@ -49,10 +45,6 @@ result3 = i.retrieve_using_key( to_key_search )
 end = current_milli_time() 
 print (end - start)
 are_equal ( result1, result2, result3 ) 
-
-print result1
-print result2
-print result3
 
 print
 
