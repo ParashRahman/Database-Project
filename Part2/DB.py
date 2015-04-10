@@ -1,25 +1,19 @@
 # This is the parent class for searching, inserting records. Child classes will have to call the DB class's constructor and pass onto it the initialized db_object (B_tree,hashtable,etc)
 import bsddb
 
-
 class DB:
 
     parse_letter=":::"
 
     def __init__(self, db_obj, db_address):
         self.db = db_obj
-        self.db_address=db_address
+        self.db_address = db_address
 
-        return     
-
-    def record_parser(self,records):
+    def record_parser( self, records ):
         return records.split(parse_letter)
-
-
 
     # Retrieves records based on key search
     def retrieve_using_key(self,keys):
-
         records=[] # list containing tuples of key-value pair
 
         # Iterates through all the keys and then sees if the key is present in db. 
@@ -43,7 +37,7 @@ class DB:
         for data_value in data_values:
 
             #Iterates through the all the records in the db
-            for count in range(size_db):
+            for count in xrange(size_db):
                 if count==0:
                     current_record=self.db.first() #current record points to the record being currently compared with the data_value
 
@@ -61,51 +55,106 @@ class DB:
         return records
 
 
-    #Retrieves records based on range search
-    def retrieve_range(self,low_key,high_key):
-        #Gets the list of db's keys which is sorted and then finds out the position of the high and low key in that list.
-        #Once found, it uses a loop to extract the records corresponding to the keys in that high-low key range.
+    # #Retrieves records based on range search
+    # def retrieve_range(self,low_key,high_key):
+    #     #Gets the list of db's keys which is sorted and then finds out the position of the high and low key in that list.
+    #     #Once found, it uses a loop to extract the records corresponding to the keys in that high-low key range.
         
-        key_list=self.db.keys()
+    #     key_list=self.db.keys()
+
+    #     records=[]
+
+    #     #Finding out the position of the low key in key_list
+    #     [low_pos,low_found]=binary_search(key_list,low_key)
+        
+    #     #Finding out the position of the high key in key_list
+    #     [high_pos,high_found]=binary_search=(key_list,high_key)
+
+    #     if high_found==False:
+
+    #         high_pos=high_pos-1
+
+    #     index=low_pos #setting loop index
+        
+    #     while True:
+    #         key=key_list[index]
+    #         records.append(self.db[key])
+            
+    #         if index==high_key:
+    #             break
+    #         index+=1
+
+    #     return key_list
+
+
+
+    def retrieve_range_btree(self,low_key,high_key):
 
         records=[]
 
-        #Finding out the position of the low key in key_list
-        [low_pos,low_found]=binary_search(key_list,low_key)
-        
-        #Finding out the position of the high key in key_list
-        [high_pos,high_found]=binary_search=(key_list,high_key)
+        last_record=self.db.last()
 
-        if high_found==False:
+        records.append(self.db.set_location(low_key))
 
-            high_pos=high_pos-1
+        reached_end=False
 
-        index=low_pos #setting loop index
-        
         while True:
-            key=key_list[index]
-            records.append(self.db[key])
-            
-            if index==high_key:
-                break
-            index+=1
 
-        return key_list
+            if records[-1]!=last_record:
+                
+                next_record=self.db.next()
+
+            else:
+
+                break
+
+            if next_record[0]<=high_key:
+
+                records.append(next_record)
+
+            else:
+
+                break
+
+
+        return records
+
+
+    def retrieve_range_hash(self, low_key, high_key):
+
+        records=[]
+
+        keys_in_range=[]
+
+        all_keys=self.db.keys()
+
+        for key in all_keys:
+
+            if key>=low_key and key<=high_key:
+
+                keys_in_range.append(key)
+
+        for key in keys_in_range:
+
+            records.append((key,self.db[key]))
+
+        return records
+
+
 
     
     #Takes a records list which contains a tuple eg, (key,value).
     #Stores the values against the corresponding key
     def insert(self,records):
         for key,value in records:
-            if self.db.has_key(key)==False:
-                self.db[key]=value
+            if self.db.has_key(key) == False:
+                self.db[key] = value
 
         return True
 
-
-
     #Returns a list with variables telling you wether key is found in the list and if found tells you position.
     #Otherwise it gives out the position of the immediate latter key and also tells you that original key was not found using "found" variable.
+    
     def binary_search(self,key_list,key,low=0,high=0):
 
         high=len(key_list)
@@ -132,4 +181,4 @@ class DB:
     # destructor
     def __del__(self):
         self.close()
-
+        self.save()

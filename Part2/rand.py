@@ -12,14 +12,14 @@ class Random:
     def get_keys_and_values(self, size = 100000):
         random.seed(SEED)
         return_tuples = []
-        for index in range(size):
+        for index in xrange(size):
             krng = 64 + self.get_random()
             key = ""
-            for i in range(krng):
+            for i in xrange(krng):
                 key += str(self.get_random_char())
             vrng = 64 + self.get_random()
             value = ""
-            for i in range(vrng):
+            for i in xrange(vrng):
                 value += str(self.get_random_char())
             return_tuples.append( (key, value) )
 

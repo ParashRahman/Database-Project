@@ -13,11 +13,13 @@ class ChoosePopulate:
         self.database_location = database_loc
 
     def generate_data(self, quantity):
+
         #Retrieve the key value pairs to be injected
         r = Random()
         self.vals =  r.get_keys_and_values(quantity) 
 
         #self.vals[("1","a"),("2","b"),("3","c"),("75","d"),("7","e"),("432","f"),("1","a"),("1","a"),("1","a"),("1","a"),("1","a"),("1","a"),("1","a"),("1","a")]
+
 
     # return True if option chosen
     # return False if exited
