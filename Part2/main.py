@@ -4,11 +4,27 @@ from search_database import SearchDatabase
 import os
 
 class Main: 
-    def __init__(self):
+    def __init__(self, initial_database):
         self.database_location = "tmp/my_db/tianzhi_db/"
         if not os.path.exists(self.database_location):
             os.makedirs(self.database_location)
         self.database = None
+
+        # Initial getting data for database
+        self.choose = ChoosePopulate(self.database_location)
+        self.values = self.choose.generate_data( 100000 )
+
+        # Set up the database the user chose
+        initial_database = initial_database.strip().lower()
+        if ( initial_database == "btree" ):
+            self.database = self.choose.populate(1, self.database)
+        elif ( initial_database == "hash" ):
+            self.database = self.choose.populate(2, self.database)
+        elif ( initial_database == "indexfile" ):
+            self.database = self.choose.populate(3, self.database)
+        else:
+            print "ERROR: You picked an invalid database option. " \
+                "Please select 1 to create and populate a database. "
 
     def start_application(self):
         # print options for the user
@@ -21,8 +37,7 @@ class Main:
 
             if ( choice == 1 ):
                 # Create and populate the database
-                c = ChoosePopulate(self.database_location)
-                self.database = c.start_application(self.database)
+                self.database = self.choose.start_application(self.database)
             elif ( choice == 2 ):
                 # key search of database
                 if ( self.database != None ):
@@ -66,6 +81,3 @@ class Main:
         print( "[5] Destroy the database" )
         print( "[6] Quit" )
 
-if __name__ == '__main__':
-    x = Main()
-    x.start_application()

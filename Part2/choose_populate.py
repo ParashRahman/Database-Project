@@ -18,10 +18,9 @@ class ChoosePopulate:
         self.index_file_location_2 = self.database_location + "index_file_ii.db"
 
     def generate_data(self, quantity):
-
         #Retrieve the key value pairs to be injected
         r = Random()
-        self.vals =  r.get_keys_and_values(quantity) 
+        self.vals = r.get_keys_and_values(quantity) 
 
     # return True if option chosen
     # return False if exited
@@ -30,10 +29,11 @@ class ChoosePopulate:
         self.print_options()
         
         # Get user input option
-        choice = IOHelpers.get_input( 3 )
+        choice = IOHelpers.get_input( 4 )
+        
+        self.populate(choice, database)
 
-        self.generate_data(100)
-
+    def populate( self, choice, database ):
         if ( choice == 1 ):
             # database = B-Tree
             if database != None:
