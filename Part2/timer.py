@@ -1,5 +1,4 @@
-from timeit import Timer
-
+import timeit 
 # The Timer Function
 # Inputs:
     # functions=[method 1,method 2,.....,method n]
@@ -8,19 +7,17 @@ from timeit import Timer
 # Outputs the time needed to execute each methods
 def timer(functions, names, no_times):
    
-    timer_objs=[] #a list of Timer object
+    # timer_objs=[] #a list of Timer object
     execution_time=[] #a list of execution time corresponding to each methods
-
-    for function in functions:
-       
-        timer_objs.append(Timer(function))
 
     for index in range(len(no_times)):
     
         repeat_number=no_times[index] #repeat_number represents number of times to run the function
+
+        time_taken=timeit.timeit(functions[index], setup="from startup import *" ,number=repeat_number)
     
-        execution_time.append( timer_objs[index](repeat_number) )
+        execution_time.append( time_taken*1000000 )
     
-        print names[index] + " took " + execution_time[index] + " seconds to run " + repeat_number + " times"
+        print names[index] + " took " + str(execution_time[index]) + " microseconds to run " + str(repeat_number) + " times"
 
     return [execution_time,names]

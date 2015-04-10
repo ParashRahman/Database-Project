@@ -14,11 +14,11 @@ class ChoosePopulate:
         self.Index_file_obj=database_obj[2]
 
     def generate_data(self, quantity):
-        Retrieve the key value pairs to be injected
+        # Retrieve the key value pairs to be injected
         r = Random()
         self.vals =  r.get_keys_and_values(quantity) 
 
-        self.vals[("1","a"),("2","b"),("3","c"),("75","d"),("7","e"),("432","f"),("1","a"),("1","a"),("1","a"),("1","a"),("1","a"),("1","a"),("1","a"),("1","a")]
+        # self.vals=[("1","a"),("2","b"),("3","c"),("75","d"),("7","e"),("432","f"),("857","g"),("293","h"),("2382","i"),("492","j"),("124","k"),("943","l"),("82","m"),("912","n")]
 
     # return True if option chosen
     # return False if exited
