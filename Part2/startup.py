@@ -5,3 +5,4 @@ from hash_table import HashTable
 from b_tree import BTree
 from choose_populate import ChoosePopulate
 from test import *
+from index_file import *

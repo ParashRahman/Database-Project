@@ -4,6 +4,7 @@ from DB import DB
 from hash_table import HashTable
 from b_tree import BTree
 from choose_populate import ChoosePopulate
+from index_file import * 
 
 
 def wrapper(function, *args, **kwargs):
@@ -19,9 +20,14 @@ if __name__ == "__main__":
 
 	BTree_obj=BTree("B_tree.db")
 	hash_table_obj=HashTable("Hash_table.db")
+	Index_file_obj=IndexFile("B_tree2.db", "Index_file.db")
 
-	populating_obj=ChoosePopulate([BTree_obj,hash_table_obj,None])
-	populating_obj.generate_data(10000)
+	BTree_obj.destroy()
+	hash_table_obj.destroy()
+	Index_file_obj.destroy()
+
+	populating_obj=ChoosePopulate([BTree_obj,hash_table_obj,Index_file_obj])
+	populating_obj.generate_data(100000)
 
 	while True:
 
@@ -60,7 +66,7 @@ if __name__ == "__main__":
 
 	# print  hash_table_obj.retrieve_range_hash(range_keys[0],range_keys[1])
 
-	names=["Records from B_tree key search: ","Records from Hashtable key search: ","Records from B_tree value search:","Records from hashtable_tree value search:","Records from B_tree range search : ","Records from hashtable range search : "]
+	names=["Records from B_tree key search: ","Records from Hashtable key search: ","Records from Index_file key search: ","Records from B_tree value search:","Records from hashtable_tree value search:","Records from Index_file value search:","Records from B_tree range search : ","Records from hashtable range search : ","Records from Index_file range search : "]
 
 	functions=[]
 	
@@ -70,10 +76,16 @@ if __name__ == "__main__":
 	wrapped=wrapper(hash_table_obj.retrieve_using_key,testing_keys)
 	functions.append(wrapped)
 
+	wrapped=wrapper(Index_file_obj.retrieve_using_key,testing_keys)
+	functions.append(wrapped)
+
 	wrapped=wrapper(BTree_obj.retrieve_using_data_values,testing_values)
 	functions.append(wrapped)
 
 	wrapped=wrapper(hash_table_obj.retrieve_using_data_values,testing_values)
+	functions.append(wrapped)
+
+	wrapped=wrapper(Index_file_obj.retrieve_using_data_values,testing_values)
 	functions.append(wrapped)
 
 	wrapped=wrapper(BTree_obj.retrieve_range_btree,range_keys[0],range_keys[1])
@@ -82,12 +94,17 @@ if __name__ == "__main__":
 	wrapped=wrapper(hash_table_obj.retrieve_range_hash,range_keys[0],range_keys[1])
 	functions.append(wrapped)
 
-	# wrapped=wrapper(BTree_obj.retrieve_using_key,testing_keys)
-	# functions.append(wrapped)
+	wrapped=wrapper(Index_file_obj.retrieve_range_btree,range_keys[0],range_keys[1])
+	functions.append(wrapped)
+
 
 
 	# functions=[BTree_obj.retrieve_using_key(testing_keys), hash_table_obj.retrieve_using_key(testing_keys), BTree_obj.retrieve_using_data_values(testing_values), hash_table_obj.retrieve_using_data_values(testing_values), BTree_obj.retrieve_range_btree(range_keys[0],range_keys[1]), hash_table_obj.retrieve_range_hash(range_keys[0],range_keys[1])]
 
-	no_times=[1,1,1,1,1,1]
+	no_times=[1,1,1,1,1,1,1,1,1]
 
 	[execution_time,names]=timer(functions,names,no_times)
+	# timer(functions,names,no_times)
+	# print len(Index_file_obj.inverse_index), len(Index_file_obj.db)
+	# print len(hash_table_obj.db)
+	# print len(BTree_obj.db)
