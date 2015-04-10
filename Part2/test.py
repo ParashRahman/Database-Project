@@ -17,13 +17,31 @@ if __name__ == "__main__":
 
 		pass
 
-	testing_keys=[populating_obj.vals[75][0],populating_obj.vals[7][0],populating_obj.vals[432][0],populating_obj.vals[857][0],populating_obj.vals[293][0]] #I randomly chose them
+	# testing_keys=[populating_obj.vals[75][0],populating_obj.vals[7][0],populating_obj.vals[432][0],populating_obj.vals[857][0],populating_obj.vals[293][0]] #I randomly chose them
 
-	print "Records from B_tree key search: "
+	testing_keys=["75","7","432","857","293"]
+	testing_values=["a","b","g"]
+	range_keys=["82","943"]
+	# print "Records from B_tree key search: "
 
-	print BTree_obj.retrieve_using_key(testing_keys)
+	# print BTree_obj.retrieve_using_key(testing_keys)
 
-	print "Records from Hashtable key search: "
+	# print "Records from Hashtable key search: "
 
-	print hash_table_obj.retrieve_using_key(testing_keys)
+	# print hash_table_obj.retrieve_using_key(testing_keys)
 
+	# print "Records from B_tree value search:"
+
+	# print BTree_obj.retrieve_using_data_values(testing_values)
+
+	# print "Records from hashtable_tree value search:"
+
+	# print hash_table_obj.retrieve_using_data_values(testing_values)
+
+	print "Records from B_tree range search : "
+
+	print  BTree_obj.retrieve_range_btree(range_keys[0],range_keys[1])
+
+	print "Records from hashtable range search : "
+
+	print  hash_table_obj.retrieve_range_hash(range_keys[0],range_keys[1])
