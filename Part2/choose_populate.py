@@ -9,17 +9,20 @@ from index_file import IndexFile
 # database_obj is a list containing the objects of the databases. [B_tree obj, Hashtable obj, Index_file obj]
 
 class ChoosePopulate:
-
-    def __init__(self, database_loc):
+    
+    def __init__(self, database_loc, quantity):
+        # number of data points must be passed through quantity
         self.database_location = database_loc
         self.b_tree_location = self.database_location + "b_tree.db"
         self.hash_table_location = self.database_location + "hash_table.db"
         self.index_file_location_1 = self.database_location + "index_file_bt.db"
         self.index_file_location_2 = self.database_location + "index_file_ii.db"
+        self.generate_data( quantity )
 
     def generate_data(self, quantity):
         #Retrieve the key value pairs to be injected
         r = Random()
+        print "Generating data"
         self.vals = r.get_keys_and_values(quantity) 
 
     # return True if option chosen
@@ -31,7 +34,7 @@ class ChoosePopulate:
         # Get user input option
         choice = IOHelpers.get_input( 4 )
         
-        self.populate(choice, database)
+        return self.populate(choice, database)
 
     def populate( self, choice, database ):
         if ( choice == 1 ):

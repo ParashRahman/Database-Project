@@ -15,8 +15,7 @@ class Main:
         self.database = None
 
         # Initial getting data for database
-        self.choose = ChoosePopulate(self.database_location)
-        self.values = self.choose.generate_data( 100000 )
+        self.choose = ChoosePopulate(self.database_location, 100000)
 
         # Set up the database the user chose
         initial_database = initial_database.strip().lower()
@@ -33,7 +32,6 @@ class Main:
     def start_application(self):
         # print options for the user
         while True:
-
             self.print_options()
 
             # get the user's choice
